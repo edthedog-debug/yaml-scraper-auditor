@@ -468,7 +468,6 @@ llm_transformation:
             lucide.createIcons();
             populateHourMinuteSelectors();
             
-            // Set initial dropdown selector value and populate editor
             const presetSelector = document.getElementById('preset-selector');
             if (presetSelector) {
                 presetSelector.value = 'regex_finance';
@@ -480,77 +479,99 @@ llm_transformation:
         });
 
         // Tab Switching
-        function switchTab(tabName) {
-            const tabs = ['pipeline', 'scheduler', 'ai'];
-            tabs.forEach(t => {
-                const content = document.getElementById(`tab-${t}`);
-                const btn = document.getElementById(`tab-btn-${t}`);
-                if (t === tabName) {
-                    content.classList.remove('hidden');
-                    btn.className = "flex-1 py-2.5 px-3 border-b-2 border-iron-accent text-iron-accent font-bold uppercase tracking-wider flex items-center justify-center gap-2 bg-iron-900";
-                } else {
-                    content.classList.add('hidden');
-                    btn.className = "flex-1 py-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-bold uppercase tracking-wider flex items-center justify-center gap-2";
+        // --- SCRAPING PIPELINE CORE ENGINE WITH FAST TIMEOUT ---
+        async function runPipelineManual() {
+            runPipeline('MANUAL_TRIGGER');
+        }
+
+        async function fetchWithTimeout(url, timeoutMs = 2500) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                return response;
+            } catch (err) {
+                clearTimeout(timeoutId);
+                throw err;
+            }
+        }
+
+        async function runPipeline(triggerSource = 'CRON_TRIGGER') {
+            const yamlText = document.getElementById('yaml-input').value;
+            setStatusPill('RUNNING');
+            setProgress(15, 'PARSING_YAML_SPEC');
+            
+            logTerminal(`Initiating heavy scraper pipeline. Trigger source: [${triggerSource}]`, 'INFO');
+
+            let targetUrl = "https://www.google.com/finance/quote/SPX:INDEXSP";
+            const urlMatch = yamlText.match(/target_url:\s*"([^"]+)"/);
+            if (urlMatch && urlMatch[1]) targetUrl = urlMatch[1];
+
+            const selectedEngine = document.getElementById('engine-mode-select').value;
+
+            try {
+                // Step 1: DOM Fetch (Fast 2.5s Timeout to avoid lagging)
+                setProgress(35, 'HTTP_FETCH_DOM');
+                logTerminal(`Connecting to target endpoint: ${targetUrl}`, 'INFO');
+                
+                let fetchedHtml = "";
+                try {
+                    const response = await fetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`, 2500);
+                    if (response.ok) {
+                        const data = await response.json();
+                        fetchedHtml = data.contents;
+                        logTerminal(`HTTP 200 OK - Fetched Payload Size: ${Math.round(fetchedHtml.length / 1024)} KB`, 'SUCCESS');
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (err) {
+                    logTerminal(`Direct fetch timeout/CORS error (${err.message}). Instant fallback to synthetic DOM sample.`, 'WARNING');
+                    fetchedHtml = getFallbackSyntheticDOM(targetUrl);
                 }
-            });
-        }
 
-        // Populate Granular Hour/Minute Dropdowns
-        function populateHourMinuteSelectors() {
-            const hourSelect = document.getElementById('cron-hour');
-            const minSelect = document.getElementById('cron-minute');
+                // Step 2: Parsing Phase
+                setProgress(65, selectedEngine === 'regex' ? 'LOCAL_REGEX_PARSING' : 'CUSTOM_AI_NORMALIZATION');
+                let extractedData = null;
 
-            for (let i = 0; i < 24; i++) {
-                const opt = document.createElement('option');
-                const val = i.toString().padStart(2, '0');
-                opt.value = val;
-                opt.textContent = `${val}:00`;
-                hourSelect.appendChild(opt);
-            }
-            // Default 21:00
-            hourSelect.value = "21";
-
-            for (let i = 0; i < 60; i += 5) {
-                const opt = document.createElement('option');
-                const val = i.toString().padStart(2, '0');
-                opt.value = val;
-                opt.textContent = `:${val}`;
-                minSelect.appendChild(opt);
-            }
-            minSelect.value = "00";
-        }
-
-        // Multiselect Cron Days
-        function toggleDay(dayStr) {
-            if (selectedCronDays.includes(dayStr)) {
-                selectedCronDays = selectedCronDays.filter(d => d !== dayStr);
-            } else {
-                selectedCronDays.push(dayStr);
-            }
-            updateCronDayUI();
-            updateCustomCron();
-        }
-
-        function updateCronDayUI() {
-            const btns = document.querySelectorAll('.cron-day-btn');
-            btns.forEach(btn => {
-                const day = btn.getAttribute('data-day');
-                if (selectedCronDays.includes(day)) {
-                    btn.className = "cron-day-btn py-1 border border-iron-accent bg-iron-accent text-iron-950 font-bold text-[10px] text-center";
+                if (selectedEngine === 'regex') {
+                    logTerminal(`Executing Local Regex patterns against raw HTML DOM...`, 'REGEX');
+                    extractedData = executeLocalRegexExtraction(fetchedHtml, targetUrl, yamlText);
                 } else {
-                    btn.className = "cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-400 font-bold text-[10px] text-center";
+                    logTerminal(`Sending payload to Custom AI API Gateway...`, 'INFO');
+                    extractedData = await executeCustomLLMExtraction(targetUrl, yamlText);
                 }
-            });
-        }
 
-        // Load Preset Templates
-        function loadPresetTemplate(key) {
-            const yamlInput = document.getElementById('yaml-input');
-            if (PIPELINE_PRESETS[key] && yamlInput) {
-                yamlInput.value = PIPELINE_PRESETS[key];
-                logTerminal(`Loaded specification preset: [${key.toUpperCase()}]`, 'INFO');
-            } else {
-                logTerminal(`Failed to load preset key: [${key}]`, 'ERROR');
+                const recordsCount = Array.isArray(extractedData) ? extractedData.length : Object.keys(extractedData).length;
+
+                // Step 3: Payload Audit Output
+                setProgress(90, 'BUFFER_RENDER');
+                lastExtractedData = extractedData;
+                
+                const jsonString = JSON.stringify(extractedData, null, 2);
+                document.getElementById('extracted-json-preview').textContent = jsonString;
+                document.getElementById('metric-records').textContent = recordsCount;
+                document.getElementById('metric-size').textContent = `${(jsonString.length / 1024).toFixed(2)} KB`;
+
+                logTerminal(`Pipeline extraction cycle finished! Record count: ${recordsCount}`, 'SUCCESS');
+
+                // Step 4: Auto-Save to Local Folder
+                if (document.getElementById('autosave-toggle').checked && localDirHandle) {
+                    setStatusPill('SAVING');
+                    setProgress(95, 'WRITING_LOCAL_FILE');
+                    await autoSaveToLocalDirectory(jsonString);
+                }
+
+                setProgress(100, 'FINISHED');
+                logTerminal(`Cycle completed.`, 'SUCCESS');
+                document.getElementById('footer-last-run').textContent = `LAST_RUN: ${new Date().toLocaleTimeString()}`;
+
+            } catch (error) {
+                logTerminal(`Pipeline execution error: ${error.message}`, 'ERROR');
+                setProgress(0, 'FAILED');
+            } finally {
+                setStatusPill('IDLE');
+                setTimeout(() => setProgress(0, 'IDLE'), 1200);
             }
         }
 
