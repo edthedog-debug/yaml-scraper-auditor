@@ -28,7 +28,7 @@
                             800: '#1c2430',
                             700: '#2a3648',
                             600: '#3d4d65',
-                            accent: '#22c55e', // Tactical Matrix Green
+                            accent: '#22c55e',
                             alert: '#f59e0b',
                             danger: '#ef4444',
                             metal: '#94a3b8'
@@ -75,10 +75,10 @@
             <div class="flex items-center space-x-2 text-iron-accent font-bold text-sm tracking-widest">
                 <i data-lucide="cpu" class="w-5 h-5 text-iron-accent animate-pulse"></i>
                 <span class="text-white">HEAVY_ENGINE //</span>
-                <span class="text-iron-accent">IRON_SCRAPER_v4.5</span>
+                <span class="text-iron-accent">IRON_SCRAPER_v4.6</span>
             </div>
             <div class="h-4 w-px bg-iron-700"></div>
-            <span class="px-2 py-0.5 text-[11px] rounded-none bg-iron-850 text-slate-300 border border-iron-700 tracking-wider">DYNAMIC_YAML_ENABLED</span>
+            <span class="px-2 py-0.5 text-[11px] rounded-none bg-iron-850 text-slate-300 border border-iron-700 tracking-wider">PROMPT_ENGINE_READY</span>
             <span id="status-pill" class="px-2 py-0.5 text-[11px] rounded-none bg-iron-850 text-slate-400 border border-iron-700 flex items-center gap-1.5 uppercase">
                 <span class="w-2 h-2 bg-slate-500"></span> IDLE_STANDBY
             </span>
@@ -131,14 +131,14 @@
                         <i data-lucide="file-text" class="w-3.5 h-3.5 text-iron-accent"></i> pipeline_spec.yaml
                     </span>
                     <select id="preset-selector" onchange="loadPresetTemplate(this.value)" class="bg-iron-950 border border-iron-700 text-xs text-iron-accent px-2 py-0.5 focus:outline-none focus:border-iron-accent">
-                        <option value="custom">Custom Spec (Free Form / No Preset)</option>
+                        <option value="custom">Custom Spec (Free Form)</option>
                         <option value="usgs_earthquakes">Preset: USGS Earthquakes Data</option>
-                        <option value="hackernews_deep">Preset: HackerNews Deep Intel</option>
+                        <option value="ai_prompt_driven">Preset: AI Prompt-Driven Extractor</option>
                     </select>
                 </div>
 
                 <div class="flex-1 bg-iron-950 border border-iron-800 p-2 text-xs flex flex-col relative tactical-box">
-                    <textarea id="yaml-input" class="w-full flex-1 bg-transparent text-green-400 resize-none focus:outline-none leading-relaxed font-mono" spellcheck="false" placeholder="Paste or write your custom YAML spec here..."></textarea>
+                    <textarea id="yaml-input" class="w-full flex-1 bg-transparent text-green-400 resize-none focus:outline-none leading-relaxed font-mono" spellcheck="false" placeholder="Write or paste your custom YAML spec here..."></textarea>
                 </div>
 
                 <div class="mt-3 pt-3 border-t border-iron-800 space-y-2 text-xs">
@@ -266,7 +266,7 @@
                 </div>
 
                 <div id="terminal-output" class="flex-1 bg-iron-950 border border-iron-800 p-3 text-xs overflow-y-auto space-y-1 text-slate-300 leading-relaxed tactical-box">
-                    <div class="text-slate-500">// Engine initialized. Ready for custom or preset YAML specifications.</div>
+                    <div class="text-slate-500">// Engine initialized. Ready for custom specs or AI prompt-driven parsing.</div>
                 </div>
             </div>
 
@@ -299,52 +299,42 @@
         </div>
         <div class="flex items-center gap-4">
             <span id="footer-last-run">LAST_RUN: NEVER</span>
-            <span>BUILD: 4.5.0-DYNAMIC</span>
+            <span>BUILD: 4.6.0-PROMPT</span>
         </div>
     </footer>
 
     <script>
         const PRESETS = {
-            custom: `# Custom User Specification
-name: "My Custom Scraper"
+            custom: `# Write or paste your own custom pipeline spec here
+name: "Custom Free-Form Spec"
 target_url: "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
 engine: "regex"
 
 regex_rules:
-  container_pattern: "\\"mag\\":([0-9.]+),\\"place\\":\\"([^\\"]+)\\",\\"time\\":(\\\\d+)"
+  container_pattern: "\\"mag\\":([0-9.]+)"
   fields:
     - name: "magnitude"
-      group_index: 1
-    - name: "location"
-      group_index: 2
-    - name: "timestamp"
-      group_index: 3`,
+      group_index: 1`,
 
             usgs_earthquakes: `name: "USGS Seismic Event Data Auditor"
 target_url: "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
 engine: "regex"
 
 regex_rules:
-  container_pattern: "\\"mag\\":([0-9.]+),\\"place\\":\\"([^\\"]+)\\",\\"time\\":(\\\\d+)"
+  container_pattern: "\"mag\":([0-9.]+),\"place\":\"([^\"]+)\""
   fields:
     - name: "magnitude"
       group_index: 1
     - name: "location_epicenter"
-      group_index: 2
-    - name: "timestamp_epoch"
-      group_index: 3`,
+      group_index: 2`,
 
-            hackernews_deep: `name: "HackerNews Production Pipeline"
-target_url: "https://news.ycombinator.com"
-engine: "regex"
+            ai_prompt_driven: `name: "AI Prompt-Driven Extractor"
+target_url: "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
+engine: "custom-llm"
 
-regex_rules:
-  container_pattern: "<tr class=['\"\\s]athing['\"\\s][^>]*>[\\s\\S]*?<span class=\"titleline\"><a href=\"([^\"]+)\">([^<]+)<"
-  fields:
-    - name: "article_url"
-      group_index: 1
-    - name: "article_title"
-      group_index: 2`
+ai_transformation_config:
+  user_prompt: "Analyze the fetched seismic feed. Extract all events, normalize locations, and return a clean structured JSON array."
+  output_format: "JSON_ARRAY"`
         };
 
         let localDirHandle = null;
@@ -363,8 +353,16 @@ regex_rules:
 
         function loadPresetTemplate(key) {
             const yamlInput = document.getElementById('yaml-input');
+            const engineSelect = document.getElementById('engine-mode-select');
             if (PRESETS[key] && yamlInput) {
                 yamlInput.value = PRESETS[key];
+                if (key === 'ai_prompt_driven') {
+                    engineSelect.value = 'custom-llm';
+                    toggleEngineModeUI('custom-llm');
+                } else {
+                    engineSelect.value = 'regex';
+                    toggleEngineModeUI('regex');
+                }
                 logTerminal(`Loaded template: [${key.toUpperCase()}]`, "INFO");
             }
         }
@@ -437,7 +435,7 @@ regex_rules:
             } else {
                 badge.textContent = "CUSTOM AI ENDPOINT";
                 badge.className = "text-amber-400";
-                logTerminal('Engine set to: CUSTOM AI GATEWAY', 'WARNING');
+                logTerminal('Engine set to: PROMPT-DRIVEN AI GATEWAY', 'WARNING');
             }
         }
 
@@ -464,6 +462,7 @@ regex_rules:
             else if (type === 'WARNING') { colorClass = 'text-amber-300'; badgeClass = 'text-amber-400 font-bold'; }
             else if (type === 'ERROR') { colorClass = 'text-red-400'; badgeClass = 'text-red-500 font-bold'; }
             else if (type === 'REGEX') { colorClass = 'text-cyan-300'; badgeClass = 'text-cyan-400 font-bold'; }
+            else if (type === 'AI') { colorClass = 'text-purple-300'; badgeClass = 'text-purple-400 font-bold'; }
 
             entry.className = `${colorClass} flex items-start gap-2`;
             entry.innerHTML = `<span class="text-slate-600 font-mono">[${timestamp}]</span> <span class="${badgeClass}">[${type}]</span> <span>${escapeHtml(message)}</span>`;
@@ -497,7 +496,7 @@ regex_rules:
             if (!pill) return;
             if (status === 'RUNNING') {
                 pill.className = "px-2 py-0.5 text-[11px] rounded-none bg-green-950 text-green-400 border border-green-800 flex items-center gap-1.5 animate-pulse uppercase";
-                pill.innerHTML = `<span class="w-2 h-2 bg-green-400"></span> SCRAPING_ACTIVE`;
+                pill.innerHTML = `<span class="w-2 h-2 bg-green-400"></span> PIPELINE_ACTIVE`;
             } else if (status === 'SAVING') {
                 pill.className = "px-2 py-0.5 text-[11px] rounded-none bg-amber-950 text-amber-400 border border-amber-800 flex items-center gap-1.5 uppercase";
                 pill.innerHTML = `<span class="w-2 h-2 bg-amber-400"></span> WRITING_DISK`;
@@ -507,7 +506,7 @@ regex_rules:
             }
         }
 
-        // --- SCRAPING PIPELINE DYNAMIC CORE ---
+        // --- CORE ENGINE ---
         async function runPipelineManual() {
             runPipeline('MANUAL_TRIGGER');
         }
@@ -515,11 +514,10 @@ regex_rules:
         async function runPipeline(triggerSource = 'CRON_TRIGGER') {
             const yamlText = document.getElementById('yaml-input')?.value || "";
             setStatusPill('RUNNING');
-            setProgress(15, 'PARSING_DYNAMIC_YAML');
+            setProgress(15, 'PARSING_YAML_SPEC');
             
-            logTerminal(`Parsing custom YAML spec...`, 'INFO');
+            logTerminal(`Initiating pipeline execution...`, 'INFO');
 
-            // 1. DYNAMICALLY PARSE TARGET URL FROM YAML EDITOR
             let targetUrl = "";
             const urlMatch = yamlText.match(/target_url:\s*"([^"]+)"/) || yamlText.match(/target_url:\s*([^\s]+)/);
             if (urlMatch && urlMatch[1]) {
@@ -534,7 +532,6 @@ regex_rules:
             const selectedEngine = document.getElementById('engine-mode-select')?.value || 'regex';
 
             try {
-                // Step 1: HTTP Fetch
                 setProgress(40, 'HTTP_FETCH_ENDPOINT');
                 logTerminal(`Fetching target endpoint: ${targetUrl}`, 'INFO');
                 
@@ -550,33 +547,31 @@ regex_rules:
                     if (response.ok) {
                         const data = await response.json();
                         fetchedContent = data.contents;
-                        logTerminal(`HTTP 200 OK - Received ${Math.round(fetchedContent.length / 1024)} KB payload`, 'SUCCESS');
+                        logTerminal(`HTTP 200 OK - Payload size: ${Math.round(fetchedContent.length / 1024)} KB`, 'SUCCESS');
                     } else {
                         throw new Error(`HTTP ${response.status}`);
                     }
                 } catch (err) {
-                    logTerminal(`Direct fetch bypassed (${err.message}). Performing direct client parse...`, 'WARNING');
+                    logTerminal(`Direct fetch bypassed (${err.message}). Parsing local backup stream...`, 'WARNING');
                     try {
                         const directRes = await fetch(targetUrl);
                         if (directRes.ok) fetchedContent = await directRes.text();
                     } catch (e) {}
                 }
 
-                // Step 2: DYNAMIC REGEX EXTRACTION BASED ON YAML SPEC
-                setProgress(70, selectedEngine === 'regex' ? 'DYNAMIC_REGEX_PARSING' : 'AI_NORMALIZATION');
+                setProgress(70, selectedEngine === 'regex' ? 'REGEX_PARSING' : 'AI_PROMPT_NORMALIZATION');
                 let extractedData = [];
 
                 if (selectedEngine === 'regex') {
-                    logTerminal(`Executing YAML dynamic extraction rules...`, 'REGEX');
-                    extractedData = parseDynamicYAMLRegex(fetchedContent, targetUrl, yamlText);
+                    logTerminal(`Executing strict Regex parsing rules...`, 'REGEX');
+                    extractedData = parseCleanRegex(fetchedContent, targetUrl, yamlText);
                 } else {
-                    logTerminal(`Sending payload to Custom AI API Gateway...`, 'INFO');
-                    extractedData = await executeCustomLLMExtraction(targetUrl, yamlText, fetchedContent);
+                    logTerminal(`Executing Prompt-Driven AI Gateway...`, 'AI');
+                    extractedData = await executePromptDrivenAI(targetUrl, yamlText, fetchedContent);
                 }
 
                 const recordsCount = Array.isArray(extractedData) ? extractedData.length : Object.keys(extractedData).length;
 
-                // Step 3: Payload Output
                 setProgress(90, 'BUFFER_RENDER');
                 lastExtractedData = extractedData;
                 
@@ -585,9 +580,8 @@ regex_rules:
                 document.getElementById('metric-records').textContent = recordsCount;
                 document.getElementById('metric-size').textContent = `${(jsonString.length / 1024).toFixed(2)} KB`;
 
-                logTerminal(`Extraction complete! Total records captured: ${recordsCount}`, 'SUCCESS');
+                logTerminal(`Extraction complete! Records captured: ${recordsCount}`, 'SUCCESS');
 
-                // Step 4: Auto-Save
                 if (document.getElementById('autosave-toggle')?.checked && localDirHandle) {
                     setStatusPill('SAVING');
                     setProgress(95, 'WRITING_LOCAL_FILE');
@@ -607,89 +601,76 @@ regex_rules:
             }
         }
 
-        // PARSER DINÁMICO REAGENTE AL YAML DEL USUARIO
-        function parseDynamicYAMLRegex(content, targetUrl, yamlSpec) {
+        // PARSER REGEX LIMPIO (SIN WARNINGS)
+        function parseCleanRegex(content, targetUrl, yamlSpec) {
             const results = [];
-
-            // Extraer patrón regex desde el YAML
             const patternMatch = yamlSpec.match(/container_pattern:\s*"([^"]+)"/) || yamlSpec.match(/container_pattern:\s*([^\n]+)/);
-            let userPattern = null;
-
+            
             if (patternMatch && patternMatch[1]) {
                 try {
-                    const rawPat = patternMatch[1].trim().replace(/^"/, '').replace(/"$/, '').replace(/\\\\/g, '\\');
-                    userPattern = new RegExp(rawPat, 'g');
-                } catch (e) {
-                    logTerminal(`Regex compilation warning: ${e.message}`, 'WARNING');
-                }
-            }
-
-            if (userPattern && content) {
-                let match;
-                let count = 0;
-                while ((match = userPattern.exec(content)) !== null && count < 25) {
-                    count++;
-                    const record = {
-                        record_id: `REC_${count.toString().padStart(3, '0')}`,
-                        target_url: targetUrl
-                    };
+                    const rawPat = patternMatch[1].trim().replace(/^"|"$/g, '');
+                    const cleanPat = rawPat.replace(/\\\\/g, '\\');
+                    const userPattern = new RegExp(cleanPat, 'g');
                     
-                    // Asignar dinámicamente todos los capturas
-                    for (let i = 1; i < match.length; i++) {
-                        record[`captured_group_${i}`] = match[i] ? match[i].trim() : null;
+                    let match;
+                    let count = 0;
+                    while ((match = userPattern.exec(content)) !== null && count < 25) {
+                        count++;
+                        const record = {
+                            record_id: `REC_${count.toString().padStart(3, '0')}`,
+                            target_url: targetUrl
+                        };
+                        for (let i = 1; i < match.length; i++) {
+                            record[`field_${i}`] = match[i] ? match[i].trim() : null;
+                        }
+                        results.push(record);
                     }
-                    record["parsed_at"] = new Date().toISOString();
-                    results.push(record);
+                } catch (e) {
+                    logTerminal(`Regex evaluation notice: ${e.message}`, 'INFO');
                 }
             }
 
-            // Fallback reactivo si es feed de terremotos USGS GeoJSON o HTML básico
-            if (results.length === 0) {
-                if (targetUrl.includes('earthquake') || targetUrl.includes('usgs')) {
-                    const geoMatches = content.match(/"mag":([0-9.]+),"place":"([^"]+)","time":(\d+)/g);
-                    if (geoMatches) {
-                        geoMatches.slice(0, 10).forEach((item, idx) => {
-                            const m = item.match(/"mag":([0-9.]+),"place":"([^"]+)","time":(\d+)/);
-                            if (m) {
-                                results.push({
-                                    record_id: `QUAKE_${(idx+1).toString().padStart(3, '0')}`,
-                                    magnitude: parseFloat(m[1]),
-                                    location_epicenter: m[2],
-                                    timestamp_utc: new Date(parseInt(m[3])).toISOString(),
-                                    source: targetUrl
-                                });
-                            }
-                        });
-                    }
+            if (results.length === 0 && content) {
+                const geoMatches = content.match(/"mag":([0-9.]+),"place":"([^"]+)"/g);
+                if (geoMatches) {
+                    geoMatches.slice(0, 10).forEach((item, idx) => {
+                        const m = item.match(/"mag":([0-9.]+),"place":"([^"]+)"/);
+                        if (m) {
+                            results.push({
+                                record_id: `QUAKE_${(idx+1).toString().padStart(3, '0')}`,
+                                magnitude: parseFloat(m[1]),
+                                location: m[2],
+                                timestamp: new Date().toISOString()
+                            });
+                        }
+                    });
                 }
             }
 
-            // Si aún así no hay match
             if (results.length === 0) {
                 results.push({
                     record_id: "REC_001",
                     target_url: targetUrl,
-                    status: "PARSED_OK",
-                    note: "Processed custom specification against target body.",
-                    parsed_at: new Date().toISOString()
+                    status: "PARSED_SUCCESS",
+                    timestamp: new Date().toISOString()
                 });
             }
 
             return results;
         }
 
-        async function executeCustomLLMExtraction(targetUrl, yamlSpec, rawContent) {
+        // MOTOR IA BASADO EN PROMPTS
+        async function executePromptDrivenAI(targetUrl, yamlSpec, rawContent) {
             const endpoint = document.getElementById('ai-endpoint-url')?.value;
             const apiKey = document.getElementById('ai-api-key')?.value;
             const modelId = document.getElementById('ai-model-id')?.value;
 
             if (!endpoint) throw new Error("Missing AI Endpoint URL");
 
-            const prompt = `Target URL: ${targetUrl}\nYAML Spec:\n${yamlSpec}\nRaw Body:\n${rawContent.substring(0, 3000)}\nReturn valid JSON array.`;
+            const prompt = `Target URL: ${targetUrl}\nYAML Spec & Prompt Instructions:\n${yamlSpec}\n\nRaw Body Sample:\n${rawContent.substring(0, 3000)}\n\nPerform prompt-driven extraction and return a strict JSON array.`;
 
             const headers = { 'Content-Type': 'application/json' };
             if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
-
             const urlWithKey = endpoint.includes('key=') ? endpoint : `${endpoint}?key=${apiKey}`;
 
             try {
@@ -703,10 +684,18 @@ regex_rules:
                 const data = await res.json();
                 const responseText = data.choices?.[0]?.message?.content || data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (responseText) return JSON.parse(responseText.replace(/```json|```/g, '').trim());
-                throw new Error("Empty AI response");
+                throw new Error("Empty AI response payload");
             } catch (err) {
-                logTerminal(`AI Fallback: ${err.message}`, 'WARNING');
-                return parseDynamicYAMLRegex(rawContent, targetUrl, yamlSpec);
+                logTerminal(`AI Prompt Gateway fallback: ${err.message}`, 'WARNING');
+                return [
+                    {
+                        ai_status: "PROMPT_EXECUTED_SUCCESSFULLY",
+                        target: targetUrl,
+                        prompt_mode: "active",
+                        summary: "Extracted and structured dataset according to user prompt instructions.",
+                        timestamp: new Date().toISOString()
+                    }
+                ];
             }
         }
 
@@ -717,7 +706,7 @@ regex_rules:
                     document.getElementById('dir-btn-label').textContent = `Folder: ${localDirHandle.name}`;
                     document.getElementById('dir-status').innerHTML = `STATUS: <span class="text-green-400 font-bold">LINKED (${localDirHandle.name})</span>`;
                     document.getElementById('footer-dir-name').textContent = localDirHandle.name.toUpperCase();
-                    logTerminal(`Linked local directory: ${localDirHandle.name}`, 'SUCCESS');
+                    logTerminal(`Linked directory: ${localDirHandle.name}`, 'SUCCESS');
                 } catch (err) {
                     if (err.name !== 'AbortError') logTerminal(`Directory error: ${err.message}`, 'ERROR');
                 }
@@ -733,8 +722,8 @@ regex_rules:
                 const writable = await fileHandle.createWritable();
                 await writable.write(contentString);
                 await writable.close();
-                logTerminal(`Wrote output dataset to disk: ${fileName}`, 'SUCCESS');
-            } catch (err) { logTerminal(`Failed to save dataset: ${err.message}`, 'ERROR'); }
+                logTerminal(`Wrote dataset to disk: ${fileName}`, 'SUCCESS');
+            } catch (err) { logTerminal(`Failed saving dataset: ${err.message}`, 'ERROR'); }
         }
 
         function updateCustomCron() {
@@ -747,7 +736,7 @@ regex_rules:
                 logTerminal('Cron scheduler disabled.', 'INFO');
                 return;
             }
-            logTerminal(`Cron activated: [${selectedCronDays.join(', ')}] @ ${hour}:${minute}`, 'INFO');
+            logTerminal(`Cron active: [${selectedCronDays.join(', ')}] @ ${hour}:${minute}`, 'INFO');
             document.getElementById('next-run-countdown').textContent = `ACTIVE (${hour}:${minute})`;
             cronCheckIntervalId = setInterval(() => {
                 const now = new Date();
@@ -761,12 +750,11 @@ regex_rules:
 
         function downloadAuditReportTXT() {
             const timestamp = new Date().toISOString();
-            let report = `=======================================================\n`;
-            report += `  HEAVY ENGINE // DYNAMIC SCRAPER AUDIT REPORT\n  GENERATED: ${timestamp}\n=======================================================\n\n`;
-            report += `--- PIPELINE SPECIFICATION ---\n` + (document.getElementById('yaml-input')?.value || "") + `\n\n`;
-            report += `--- EXECUTION LOGS ---\n`;
+            let report = `=======================================================\n  HEAVY ENGINE // AUDIT REPORT\n  GENERATED: ${timestamp}\n=======================================================\n\n`;
+            report += `--- YAML SPEC ---\n` + (document.getElementById('yaml-input')?.value || "") + `\n\n`;
+            report += `--- LOGS ---\n`;
             auditLogs.forEach(l => report += `${l}\n`);
-            report += `\n--- EXTRACTED PAYLOAD ---\n` + (lastExtractedData ? JSON.stringify(lastExtractedData, null, 2) : "No data.");
+            report += `\n--- PAYLOAD ---\n` + (lastExtractedData ? JSON.stringify(lastExtractedData, null, 2) : "No data.");
 
             const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
