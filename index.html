@@ -3,39 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCRAPE-LLM // INDUSTRIAL AUDITOR ENGINE v4.7</title>
-    <!-- Tailwind CSS -->
+    <title>SCRAPE-LLM // INDUSTRIAL AUDITOR ENGINE v5.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Fonts: Share Tech Mono & Fira Code -->
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Share+Tech+Mono&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        mono: ['"Share Tech Mono"', '"Fira Code"', 'monospace'],
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        iron: {
-                            950: '#07090c',
-                            900: '#0d1117',
-                            850: '#131922',
-                            800: '#1c2430',
-                            700: '#2a3648',
-                            600: '#3d4d65',
-                            accent: '#22c55e',
-                            alert: '#f59e0b',
-                            danger: '#ef4444',
-                            metal: '#94a3b8'
-                        }
-                    }
-                }
-            }
+            theme: { extend: {
+                fontFamily: { mono: ['"Share Tech Mono"','"Fira Code"','monospace'], sans: ['Inter','sans-serif'] },
+                colors: { iron: { 950:'#07090c',900:'#0d1117',850:'#131922',800:'#1c2430',700:'#2a3648',600:'#3d4d65',
+                    accent:'#22c55e', alert:'#f59e0b', danger:'#ef4444', metal:'#94a3b8' } }
+            } }
         }
     </script>
     <style>
@@ -43,252 +24,177 @@
         ::-webkit-scrollbar-track { background: #07090c; }
         ::-webkit-scrollbar-thumb { background: #1c2430; border: 1px solid #2a3648; }
         ::-webkit-scrollbar-thumb:hover { background: #22c55e; }
-
-        .iron-grid {
-            background-size: 24px 24px;
-            background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-        }
-
-        .iron-mesh {
-            background: radial-gradient(rgba(34, 197, 94, 0.05) 1px, transparent 0);
-            background-size: 12px 12px;
-        }
-
+        .iron-grid { background-size: 24px 24px; background-image: linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px); }
+        .iron-mesh { background: radial-gradient(rgba(34,197,94,0.05) 1px, transparent 0); background-size: 12px 12px; }
         .tactical-box { position: relative; }
-        .tactical-box::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 6px;
-            border-top: 2px solid #22c55e; border-left: 2px solid #22c55e;
-        }
-        .tactical-box::after {
-            content: ''; position: absolute; bottom: 0; right: 0; width: 6px; height: 6px;
-            border-bottom: 2px solid #22c55e; border-right: 2px solid #22c55e;
-        }
+        .tactical-box::before { content:''; position:absolute; top:0; left:0; width:6px; height:6px; border-top:2px solid #22c55e; border-left:2px solid #22c55e; }
+        .tactical-box::after { content:''; position:absolute; bottom:0; right:0; width:6px; height:6px; border-bottom:2px solid #22c55e; border-right:2px solid #22c55e; }
     </style>
 </head>
 <body class="h-full font-mono antialiased bg-iron-950 text-slate-200 flex flex-col overflow-hidden select-none iron-grid">
 
-    <!-- HEADER -->
     <header class="h-14 border-b-2 border-iron-800 bg-iron-900 px-4 flex items-center justify-between z-20 shrink-0">
         <div class="flex items-center space-x-4">
             <div class="flex items-center space-x-2 text-iron-accent font-bold text-sm tracking-widest">
                 <i data-lucide="cpu" class="w-5 h-5 text-iron-accent animate-pulse"></i>
                 <span class="text-white">HEAVY_ENGINE //</span>
-                <span class="text-iron-accent">IRON_SCRAPER_v4.7</span>
+                <span class="text-iron-accent">IRON_SCRAPER_v5.0</span>
             </div>
             <div class="h-4 w-px bg-iron-700"></div>
-            <span class="px-2 py-0.5 text-[11px] rounded-none bg-iron-850 text-slate-300 border border-iron-700 tracking-wider">STRICT_PARSER_READY</span>
-            <span id="status-pill" class="px-2 py-0.5 text-[11px] rounded-none bg-iron-850 text-slate-400 border border-iron-700 flex items-center gap-1.5 uppercase">
+            <span class="px-2 py-0.5 text-[11px] bg-iron-850 text-slate-300 border border-iron-700 tracking-wider">MULTI-PARSER_READY</span>
+            <span id="status-pill" class="px-2 py-0.5 text-[11px] bg-iron-850 text-slate-400 border border-iron-700 flex items-center gap-1.5 uppercase">
                 <span class="w-2 h-2 bg-slate-500"></span> IDLE_STANDBY
             </span>
         </div>
-
         <div class="flex items-center space-x-6 text-xs">
             <div class="hidden md:flex items-center space-x-4 bg-iron-950 border border-iron-800 px-3 py-1">
-                <div class="flex items-center gap-2 text-slate-400">
-                    <i data-lucide="clock" class="w-3.5 h-3.5 text-iron-accent"></i>
-                    <span>UTC: <span id="utc-clock" class="text-slate-100 font-bold">00:00:00</span></span>
-                </div>
+                <div class="flex items-center gap-2 text-slate-400"><i data-lucide="clock" class="w-3.5 h-3.5 text-iron-accent"></i><span>UTC: <span id="utc-clock" class="text-slate-100 font-bold">00:00:00</span></span></div>
                 <div class="h-3 w-px bg-iron-800"></div>
-                <div class="text-slate-400">
-                    <span>LOCAL: <span id="local-clock" class="text-iron-accent font-bold">00:00:00</span></span>
-                </div>
+                <div class="text-slate-400"><span>LOCAL: <span id="local-clock" class="text-iron-accent font-bold">00:00:00</span></span></div>
             </div>
-
             <div class="flex items-center space-x-2 bg-iron-950 border border-iron-800 px-3 py-1 text-iron-accent">
                 <i data-lucide="timer" class="w-3.5 h-3.5"></i>
                 <span>NEXT SCHED: <span id="next-run-countdown" class="font-bold text-white">STANDBY</span></span>
             </div>
-
-            <div class="flex items-center gap-2">
-                <button id="btn-manual-run" onclick="runPipelineManual()" class="bg-iron-accent hover:bg-green-600 text-iron-950 font-bold px-4 py-1.5 rounded-none text-xs tracking-wider transition flex items-center gap-2 shadow-lg shadow-green-950/50 uppercase border border-green-400">
-                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Run Audit Cycle
-                </button>
-            </div>
+            <button id="btn-manual-run" onclick="runPipelineManual()" class="bg-iron-accent hover:bg-green-600 text-iron-950 font-bold px-4 py-1.5 text-xs tracking-wider transition flex items-center gap-2 shadow-lg shadow-green-950/50 uppercase border border-green-400">
+                <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Run Audit Cycle
+            </button>
         </div>
     </header>
 
-    <!-- MAIN WORKSPACE -->
     <main class="flex-1 flex overflow-hidden relative">
-
-        <aside class="w-[420px] border-r-2 border-iron-800 bg-iron-900/90 flex flex-col shrink-0">
+        <aside class="w-[440px] border-r-2 border-iron-800 bg-iron-900/90 flex flex-col shrink-0">
             <div class="flex border-b border-iron-800 bg-iron-950 text-xs">
-                <button onclick="switchTab('pipeline')" id="tab-btn-pipeline" class="flex-1 py-2.5 px-3 border-b-2 border-iron-accent text-iron-accent font-bold uppercase tracking-wider flex items-center justify-center gap-2 bg-iron-900">
-                    <i data-lucide="code-2" class="w-3.5 h-3.5"></i> Spec Editor
+                <button onclick="switchTab('pipeline')" id="tab-btn-pipeline" class="flex-1 py-2.5 px-2 border-b-2 border-iron-accent text-iron-accent font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 bg-iron-900">
+                    <i data-lucide="code-2" class="w-3.5 h-3.5"></i> Spec
                 </button>
-                <button onclick="switchTab('scheduler')" id="tab-btn-scheduler" class="flex-1 py-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-bold uppercase tracking-wider flex items-center justify-center gap-2">
-                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Granular Cron
+                <button onclick="switchTab('scheduler')" id="tab-btn-scheduler" class="flex-1 py-2.5 px-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Cron
                 </button>
-                <button onclick="switchTab('ai')" id="tab-btn-ai" class="flex-1 py-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-bold uppercase tracking-wider flex items-center justify-center gap-2">
-                    <i data-lucide="server" class="w-3.5 h-3.5"></i> AI Endpoint
+                <button onclick="switchTab('ai')" id="tab-btn-ai" class="flex-1 py-2.5 px-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
+                    <i data-lucide="server" class="w-3.5 h-3.5"></i> AI
                 </button>
             </div>
 
             <div id="tab-pipeline" class="flex-1 flex flex-col p-3 overflow-hidden">
-                <div class="flex items-center justify-between mb-2 text-xs text-slate-400">
-                    <span class="flex items-center gap-1.5 font-bold uppercase text-slate-300">
-                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-iron-accent"></i> pipeline_spec.yaml
+                <div class="flex items-center justify-between mb-2 text-xs text-slate-400 gap-2">
+                    <span class="flex items-center gap-1.5 font-bold uppercase text-slate-300 shrink-0">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-iron-accent"></i> spec.yaml
                     </span>
-                    <select id="preset-selector" onchange="loadPresetTemplate(this.value)" class="bg-iron-950 border border-iron-700 text-xs text-iron-accent px-2 py-0.5 focus:outline-none focus:border-iron-accent">
-                        <option value="custom">Custom Spec (Free Form)</option>
-                        <option value="usgs_earthquakes">Preset: USGS Earthquakes Data</option>
-                        <option value="ai_prompt_driven">Preset: AI Prompt-Driven Extractor</option>
+                    <select id="preset-selector" onchange="loadPresetTemplate(this.value)" class="bg-iron-950 border border-iron-700 text-[10px] text-iron-accent px-1.5 py-0.5 focus:outline-none focus:border-iron-accent max-w-[240px]">
+                        <option value="custom">Custom</option>
+                        <option value="usgs_json">USGS Earthquakes (JSON)</option>
+                        <option value="wikipedia_html">Wikipedia (HTML/CSS)</option>
+                        <option value="hackernews_regex">HackerNews (Regex)</option>
+                        <option value="ai_prompt_driven">AI Prompt Extractor</option>
                     </select>
                 </div>
-
                 <div class="flex-1 bg-iron-950 border border-iron-800 p-2 text-xs flex flex-col relative tactical-box">
-                    <textarea id="yaml-input" class="w-full flex-1 bg-transparent text-green-400 resize-none focus:outline-none leading-relaxed font-mono" spellcheck="false" placeholder="Write or paste your custom YAML spec here..."></textarea>
+                    <textarea id="yaml-input" class="w-full flex-1 bg-transparent text-green-400 resize-none focus:outline-none leading-relaxed font-mono" spellcheck="false" placeholder="Write YAML spec..."></textarea>
                 </div>
-
                 <div class="mt-3 pt-3 border-t border-iron-800 space-y-2 text-xs">
                     <div class="flex items-center justify-between text-slate-300 font-bold uppercase">
-                        <span>PRIMARY PARSER ENGINE:</span>
-                        <span id="engine-badge" class="text-iron-accent">LOCAL REGEX (OFFLINE)</span>
+                        <span>PARSER ENGINE:</span>
+                        <span id="engine-badge" class="text-iron-accent">AUTO-DETECT</span>
                     </div>
                     <select id="engine-mode-select" onchange="toggleEngineModeUI(this.value)" class="w-full bg-iron-950 border border-iron-700 text-slate-200 px-2 py-1.5 text-xs focus:border-iron-accent font-mono">
-                        <option value="regex">Local Regex Engine (Offline / Ultra-Fast)</option>
-                        <option value="custom-llm">Custom AI API Endpoint (Prompt-Driven LLM)</option>
+                        <option value="auto">Auto-Detect Content Type</option>
+                        <option value="json">JSON (Path Extraction)</option>
+                        <option value="html">HTML (CSS Selectors)</option>
+                        <option value="xml">XML (XPath)</option>
+                        <option value="regex">Regex (Legacy)</option>
+                        <option value="custom-llm">Custom AI Endpoint</option>
                     </select>
                 </div>
             </div>
 
-            <!-- TAB 2: CRON -->
             <div id="tab-scheduler" class="flex-1 flex flex-col p-4 overflow-y-auto space-y-4 text-xs hidden">
                 <div class="bg-iron-950 border border-iron-800 p-3 space-y-3 tactical-box">
                     <div class="text-iron-accent font-bold flex items-center justify-between border-b border-iron-800 pb-2 uppercase">
-                        <span class="flex items-center gap-1.5"><i data-lucide="clock-4" class="w-4 h-4"></i> GRANULAR CRON SCHEDULER</span>
-                        <label class="flex items-center gap-1.5 cursor-pointer text-slate-400">
-                            <input type="checkbox" id="cron-enabled" onchange="updateCustomCron()" class="accent-green-500">
-                            <span>ENABLED</span>
-                        </label>
+                        <span class="flex items-center gap-1.5"><i data-lucide="clock-4" class="w-4 h-4"></i> GRANULAR CRON</span>
+                        <label class="flex items-center gap-1.5 cursor-pointer text-slate-400"><input type="checkbox" id="cron-enabled" onchange="updateCustomCron()" class="accent-green-500"><span>ON</span></label>
                     </div>
-
                     <div class="space-y-1.5">
-                        <label class="text-slate-400 font-bold uppercase">Execution Days:</label>
+                        <label class="text-slate-400 font-bold uppercase">Days:</label>
                         <div class="grid grid-cols-7 gap-1" id="cron-days-container">
-                            <button type="button" onclick="toggleDay('Mon')" data-day="Mon" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px] text-center">MON</button>
-                            <button type="button" onclick="toggleDay('Tue')" data-day="Tue" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px] text-center">TUE</button>
-                            <button type="button" onclick="toggleDay('Wed')" data-day="Wed" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px] text-center">WED</button>
-                            <button type="button" onclick="toggleDay('Thu')" data-day="Thu" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px] text-center">THU</button>
-                            <button type="button" onclick="toggleDay('Fri')" data-day="Fri" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px] text-center">FRI</button>
-                            <button type="button" onclick="toggleDay('Sat')" data-day="Sat" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px] text-center">SAT</button>
-                            <button type="button" onclick="toggleDay('Sun')" data-day="Sun" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px] text-center">SUN</button>
+                            <button type="button" onclick="toggleDay('Mon')" data-day="Mon" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px]">MON</button>
+                            <button type="button" onclick="toggleDay('Tue')" data-day="Tue" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px]">TUE</button>
+                            <button type="button" onclick="toggleDay('Wed')" data-day="Wed" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px]">WED</button>
+                            <button type="button" onclick="toggleDay('Thu')" data-day="Thu" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px]">THU</button>
+                            <button type="button" onclick="toggleDay('Fri')" data-day="Fri" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px]">FRI</button>
+                            <button type="button" onclick="toggleDay('Sat')" data-day="Sat" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px]">SAT</button>
+                            <button type="button" onclick="toggleDay('Sun')" data-day="Sun" class="cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-300 font-bold text-[10px]">SUN</button>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-2 gap-2 pt-1">
-                        <div>
-                            <label class="text-slate-400 font-bold uppercase">Hour (00-23):</label>
-                            <select id="cron-hour" onchange="updateCustomCron()" class="w-full bg-iron-900 border border-iron-700 text-slate-200 py-1 px-2 focus:border-iron-accent"></select>
-                        </div>
-                        <div>
-                            <label class="text-slate-400 font-bold uppercase">Minute (00-59):</label>
-                            <select id="cron-minute" onchange="updateCustomCron()" class="w-full bg-iron-900 border border-iron-700 text-slate-200 py-1 px-2 focus:border-iron-accent"></select>
-                        </div>
+                        <div><label class="text-slate-400 font-bold uppercase">Hour:</label><select id="cron-hour" onchange="updateCustomCron()" class="w-full bg-iron-900 border border-iron-700 text-slate-200 py-1 px-2 focus:border-iron-accent"></select></div>
+                        <div><label class="text-slate-400 font-bold uppercase">Minute:</label><select id="cron-minute" onchange="updateCustomCron()" class="w-full bg-iron-900 border border-iron-700 text-slate-200 py-1 px-2 focus:border-iron-accent"></select></div>
                     </div>
                 </div>
-
                 <div class="bg-iron-950 border border-iron-800 p-3 space-y-3 tactical-box">
-                    <div class="text-iron-accent font-bold flex items-center gap-2 border-b border-iron-800 pb-2 uppercase">
-                        <i data-lucide="hard-drive" class="w-4 h-4"></i> LOCAL DIRECTORY AUTO-SAVE
-                    </div>
+                    <div class="text-iron-accent font-bold flex items-center gap-2 border-b border-iron-800 pb-2 uppercase"><i data-lucide="hard-drive" class="w-4 h-4"></i> LOCAL DIRECTORY</div>
                     <button onclick="requestDirectoryAccess()" class="w-full bg-iron-850 hover:bg-iron-800 border border-iron-700 text-slate-200 py-2 flex items-center justify-center gap-2 text-xs font-bold transition uppercase">
-                        <i data-lucide="folder-output" class="w-4 h-4 text-iron-accent"></i>
-                        <span id="dir-btn-label">Link Destination Folder</span>
+                        <i data-lucide="folder-output" class="w-4 h-4 text-iron-accent"></i><span id="dir-btn-label">Link Folder</span>
                     </button>
-                    <div id="dir-status" class="p-2 bg-iron-900 border border-iron-800 text-[11px] text-slate-400">
-                        STATUS: <span class="text-iron-alert font-bold">Unlinked / Memory Only</span>
-                    </div>
-                    <label class="flex items-center gap-2 text-slate-300 pt-1 cursor-pointer">
-                        <input type="checkbox" id="autosave-toggle" checked class="accent-green-500">
-                        <span>Write data directly to linked folder</span>
-                    </label>
+                    <div id="dir-status" class="p-2 bg-iron-900 border border-iron-800 text-[11px] text-slate-400">STATUS: <span class="text-iron-alert font-bold">Unlinked</span></div>
+                    <label class="flex items-center gap-2 text-slate-300 pt-1 cursor-pointer"><input type="checkbox" id="autosave-toggle" checked class="accent-green-500"><span>Auto-save to folder</span></label>
                 </div>
-
-                <div class="bg-iron-950 border border-iron-800 p-3 space-y-2">
-                    <button onclick="downloadAuditReportTXT()" class="w-full bg-iron-800 hover:bg-iron-700 border border-iron-600 text-slate-100 py-2 flex items-center justify-center gap-2 text-xs font-bold uppercase transition">
-                        <i data-lucide="file-text" class="w-4 h-4 text-iron-accent"></i> Download TXT Audit Log
-                    </button>
-                </div>
+                <button onclick="downloadAuditReportTXT()" class="w-full bg-iron-800 hover:bg-iron-700 border border-iron-600 text-slate-100 py-2 flex items-center justify-center gap-2 text-xs font-bold uppercase">
+                    <i data-lucide="file-text" class="w-4 h-4 text-iron-accent"></i> Download TXT Report
+                </button>
             </div>
 
-            <!-- TAB 3: AI -->
             <div id="tab-ai" class="flex-1 flex flex-col p-4 overflow-y-auto space-y-4 text-xs hidden">
                 <div class="bg-iron-950 border border-iron-800 p-3 space-y-3 tactical-box">
-                    <div class="text-iron-accent font-bold flex items-center gap-2 border-b border-iron-800 pb-2 uppercase">
-                        <i data-lucide="key-round" class="w-4 h-4"></i> CUSTOM AI API GATEWAY
-                    </div>
+                    <div class="text-iron-accent font-bold flex items-center gap-2 border-b border-iron-800 pb-2 uppercase"><i data-lucide="key-round" class="w-4 h-4"></i> AI GATEWAY</div>
                     <div class="space-y-1.5">
-                        <label class="text-slate-400 font-bold uppercase">Endpoint Base URL:</label>
-                        <input type="text" id="ai-endpoint-url" value="https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent" class="w-full bg-iron-900 border border-iron-700 text-slate-200 px-2.5 py-1.5 focus:border-iron-accent">
+                        <label class="text-slate-400 font-bold uppercase">Provider:</label>
+                        <select id="ai-provider" class="w-full bg-iron-900 border border-iron-700 text-slate-200 px-2.5 py-1.5 focus:border-iron-accent">
+                            <option value="gemini">Google Gemini</option>
+                            <option value="openai">OpenAI Compatible</option>
+                        </select>
                     </div>
-                    <div class="space-y-1.5">
-                        <label class="text-slate-400 font-bold uppercase">API Key / Token:</label>
-                        <input type="password" id="ai-api-key" placeholder="Enter custom API Key..." class="w-full bg-iron-900 border border-iron-700 text-slate-200 px-2.5 py-1.5 focus:border-iron-accent">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="text-slate-400 font-bold uppercase">Target Model ID:</label>
-                        <input type="text" id="ai-model-id" value="gemini-3-flash-preview" class="w-full bg-iron-900 border border-iron-700 text-slate-200 px-2.5 py-1.5 focus:border-iron-accent">
-                    </div>
+                    <div class="space-y-1.5"><label class="text-slate-400 font-bold uppercase">Endpoint URL:</label><input type="text" id="ai-endpoint-url" value="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent" class="w-full bg-iron-900 border border-iron-700 text-slate-200 px-2.5 py-1.5 focus:border-iron-accent"></div>
+                    <div class="space-y-1.5"><label class="text-slate-400 font-bold uppercase">API Key:</label><input type="password" id="ai-api-key" placeholder="API Key..." class="w-full bg-iron-900 border border-iron-700 text-slate-200 px-2.5 py-1.5 focus:border-iron-accent"></div>
+                    <div class="space-y-1.5"><label class="text-slate-400 font-bold uppercase">Model ID:</label><input type="text" id="ai-model-id" value="gemini-2.0-flash" class="w-full bg-iron-900 border border-iron-700 text-slate-200 px-2.5 py-1.5 focus:border-iron-accent"></div>
                 </div>
             </div>
         </aside>
 
-        <!-- MAIN TERMINAL & PAYLOAD -->
         <section class="flex-1 flex flex-col bg-iron-950 overflow-hidden relative">
-
             <div class="bg-iron-900 border-b border-iron-800 px-4 py-2.5 flex flex-col space-y-1.5 shrink-0">
                 <div class="flex items-center justify-between text-xs font-bold">
-                    <div class="flex items-center gap-2 text-slate-300">
-                        <i data-lucide="activity" class="w-4 h-4 text-iron-accent"></i>
-                        <span>EXECUTION PIPELINE PROGRESS</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span id="progress-step-text" class="text-slate-400 uppercase">IDLE</span>
-                        <span id="progress-percent" class="text-iron-accent">0%</span>
-                    </div>
+                    <div class="flex items-center gap-2 text-slate-300"><i data-lucide="activity" class="w-4 h-4 text-iron-accent"></i><span>PIPELINE PROGRESS</span></div>
+                    <div class="flex items-center gap-3"><span id="progress-step-text" class="text-slate-400 uppercase">IDLE</span><span id="progress-percent" class="text-iron-accent">0%</span></div>
                 </div>
-                <div class="w-full bg-iron-950 border border-iron-800 h-2 p-0.5">
-                    <div id="progress-bar" class="h-full bg-iron-accent w-0 transition-all duration-300"></div>
-                </div>
+                <div class="w-full bg-iron-950 border border-iron-800 h-2 p-0.5"><div id="progress-bar" class="h-full bg-iron-accent w-0 transition-all duration-300"></div></div>
             </div>
 
             <div class="flex-1 flex flex-col p-4 overflow-hidden iron-mesh">
                 <div class="flex items-center justify-between mb-2 text-xs">
-                    <div class="flex items-center gap-2 text-slate-400 font-bold uppercase">
-                        <i data-lucide="terminal" class="w-4 h-4 text-iron-accent"></i>
-                        <span>TACTICAL AUDIT TERMINAL LOG</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="clearLogs()" class="text-slate-400 hover:text-slate-200 text-xs px-2 py-0.5 border border-iron-800 bg-iron-900">Clear</button>
-                    </div>
+                    <div class="flex items-center gap-2 text-slate-400 font-bold uppercase"><i data-lucide="terminal" class="w-4 h-4 text-iron-accent"></i><span>AUDIT TERMINAL</span></div>
+                    <button onclick="clearLogs()" class="text-slate-400 hover:text-slate-200 text-xs px-2 py-0.5 border border-iron-800 bg-iron-900">Clear</button>
                 </div>
-
                 <div id="terminal-output" class="flex-1 bg-iron-950 border border-iron-800 p-3 text-xs overflow-y-auto space-y-1 text-slate-300 leading-relaxed tactical-box">
-                    <div class="text-slate-500">// Engine initialized. Strict filtering & robust regex parsers active.</div>
+                    <div class="text-slate-500">// Engine v5.0 ready. Multi-parser active (JSON/HTML/XML/Regex).</div>
                 </div>
             </div>
 
-            <div class="h-60 border-t border-iron-800 bg-iron-900/90 flex flex-col shrink-0">
+            <div class="h-64 border-t border-iron-800 bg-iron-900/90 flex flex-col shrink-0">
                 <div class="bg-iron-950 px-4 py-2 border-b border-iron-800 flex items-center justify-between text-xs font-bold">
-                    <div class="flex items-center gap-2 text-slate-200 uppercase">
-                        <i data-lucide="database" class="w-4 h-4 text-iron-accent"></i>
-                        <span>EXTRACTED DATA BUFFER</span>
-                    </div>
+                    <div class="flex items-center gap-2 text-slate-200 uppercase"><i data-lucide="database" class="w-4 h-4 text-iron-accent"></i><span>EXTRACTED BUFFER</span></div>
                     <div class="flex items-center gap-4 text-slate-400 text-[11px]">
-                        <span>RECORD_COUNT: <span id="metric-records" class="text-iron-accent font-bold">0</span></span>
-                        <span>BUFFER_SIZE: <span id="metric-size" class="text-green-400 font-bold">0 KB</span></span>
-                        <button onclick="downloadJsonPayload()" class="bg-iron-800 hover:bg-iron-700 text-slate-200 px-2.5 py-1 border border-iron-700 transition flex items-center gap-1.5 uppercase font-bold">
-                            <i data-lucide="download" class="w-3 h-3 text-iron-accent"></i> Save JSON
+                        <span>RECORDS: <span id="metric-records" class="text-iron-accent font-bold">0</span></span>
+                        <span>SIZE: <span id="metric-size" class="text-green-400 font-bold">0 KB</span></span>
+                        <button onclick="downloadJsonPayload()" class="bg-iron-800 hover:bg-iron-700 text-slate-200 px-2.5 py-1 border border-iron-700 flex items-center gap-1.5 uppercase font-bold">
+                            <i data-lucide="download" class="w-3 h-3 text-iron-accent"></i> JSON
                         </button>
                     </div>
                 </div>
                 <div class="flex-1 p-3 overflow-y-auto text-xs bg-iron-950">
-                    <pre id="extracted-json-preview" class="text-iron-accent/90 whitespace-pre-wrap font-mono">{ "// Waiting for execution data...": true }</pre>
+                    <pre id="extracted-json-preview" class="text-iron-accent/90 whitespace-pre-wrap font-mono">{ "// Waiting..." }</pre>
                 </div>
             </div>
-
         </section>
     </main>
 
@@ -299,491 +205,831 @@
         </div>
         <div class="flex items-center gap-4">
             <span id="footer-last-run">LAST_RUN: NEVER</span>
-            <span>BUILD: 4.7.0-ROBUST</span>
+            <span>BUILD: 5.0.0-MULTIPARSER</span>
         </div>
     </footer>
 
     <script>
-        const PRESETS = {
-            custom: `# Write or paste your own custom pipeline spec here
-name: "Custom Free-Form Spec"
+    // ============================== PRESETS ==============================
+    const PRESETS = {
+        custom: `# === Iron Scraper v5.0 Spec ===
+name: "Custom Scraper"
 target_url: "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
-engine: "regex"
+engine: auto            # auto | json | html | xml | regex | custom-llm
+timeout: 20000
+retries: 3
+rate_limit_ms: 0
 
-regex_rules:
-  container_pattern: "\\"mag\\":\\s*([+-]?[0-9]*\\.?[0-9]+)"
+extraction:
+  type: json
+  root_path: "$.features[*]"
   fields:
-    - name: "magnitude"
-      group_index: 1`,
+    - name: magnitude
+      path: "properties.mag"
+      type: number
+      required: true
+    - name: place
+      path: "properties.place"
+      transform: [trim]
+    - name: time
+      path: "properties.time"
+      type: int
+    - name: url
+      path: "properties.url"
+dedupe_by: "url"`,
 
-            usgs_earthquakes: `name: "USGS Seismic Event Data Auditor"
+        usgs_json: `name: "USGS Seismic Auditor (JSON)"
 target_url: "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
-engine: "regex"
+engine: json
+timeout: 20000
+retries: 3
 
-regex_rules:
-  container_pattern: "\\"mag\\":\\s*([+-]?[0-9]*\\.?[0-9]+),\\s*\\"place\\":\\s*\\"([^\\"]+)\\""
+extraction:
+  type: json
+  root_path: "$.features[*]"
   fields:
-    - name: "magnitude"
-      group_index: 1
-    - name: "location_epicenter"
-      group_index: 2`,
+    - name: magnitude
+      path: "properties.mag"
+      type: number
+      required: true
+    - name: place
+      path: "properties.place"
+      transform: [trim]
+    - name: time
+      path: "properties.time"
+      type: int
+    - name: url
+      path: "properties.url"
+    - name: alert
+      path: "properties.alert"
 
-            ai_prompt_driven: `name: "AI Prompt-Driven Extractor"
+dedupe_by: "url"
+# Filtros de validación estricta
+validate:
+  magnitude: { min: -1.0, max: 10.0 }
+  place: { not_empty: true }`,
+
+        wikipedia_html: `name: "Wikipedia Featured Articles (HTML)"
+target_url: "https://en.wikipedia.org/wiki/Main_Page"
+engine: html
+timeout: 20000
+
+extraction:
+  type: html
+  item_selector: "#mp-tfa p, #mp-itn li"
+  fields:
+    - name: headline
+      selector: "b, a"
+      attr: text
+    - name: link
+      selector: "a"
+      attr: href
+      transform: [prefix_url: "https://en.wikipedia.org"]
+  max_items: 30`,
+
+        hackernews_regex: `name: "HackerNews Front Page (Regex)"
+target_url: "https://news.ycombinator.com/"
+engine: regex
+timeout: 20000
+
+extraction:
+  type: regex
+  pattern: "<a[^>]+href=\\"([^\\"]+)\\"[^>]*class=\\"storylink\\"[^>]*>([^<]+)</a>"
+  fields:
+    - name: url
+      group: 1
+    - name: title
+      group: 2
+      transform: [trim]
+  max_items: 30`,
+
+        ai_prompt_driven: `name: "AI Prompt Extractor"
 target_url: "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
-engine: "custom-llm"
+engine: custom-llm
+timeout: 30000
 
 ai_transformation_config:
-  user_prompt: "Analyze the fetched seismic feed. Extract all events, clean up missing or null values, normalize locations, and return a clean structured JSON array avoiding any empty records."
+  user_prompt: "Analyze this seismic feed. Return a strict JSON array of all events with fields: magnitude (number), place (string), time (number), url. Skip nulls, deduplicate by url."
   output_format: "JSON_ARRAY"`
-        };
+    };
 
-        let localDirHandle = null;
-        let cronCheckIntervalId = null;
-        let selectedCronDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-        let lastExtractedData = null;
-        let auditLogs = [];
+    // ============================== STATE ==============================
+    let localDirHandle = null;
+    let cronCheckIntervalId = null;
+    let selectedCronDays = ['Mon','Tue','Wed','Thu','Fri'];
+    let lastExtractedData = null;
+    let auditLogs = [];
 
-        window.addEventListener('DOMContentLoaded', () => {
-            if (window.lucide) lucide.createIcons();
-            populateHourMinuteSelectors();
-            loadPresetTemplate('custom');
-            startClocks();
-            updateCronDayUI();
+    window.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) lucide.createIcons();
+        populateHourMinuteSelectors();
+        loadPresetTemplate('custom');
+        startClocks();
+        updateCronDayUI();
+    });
+
+    // ============================== UI ==============================
+    function loadPresetTemplate(key) {
+        const yamlInput = document.getElementById('yaml-input');
+        const engineSelect = document.getElementById('engine-mode-select');
+        if (PRESETS[key] && yamlInput) {
+            yamlInput.value = PRESETS[key];
+            const engineMap = { ai_prompt_driven: 'custom-llm', usgs_json: 'auto', wikipedia_html: 'auto', hackernews_regex: 'auto' };
+            engineSelect.value = engineMap[key] || 'auto';
+            toggleEngineModeUI(engineSelect.value);
+            logTerminal(`Template loaded: [${key.toUpperCase()}]`, "INFO");
+        }
+    }
+
+    function switchTab(tabName) {
+        ['pipeline','scheduler','ai'].forEach(t => {
+            const content = document.getElementById(`tab-${t}`);
+            const btn = document.getElementById(`tab-btn-${t}`);
+            if (!content || !btn) return;
+            if (t === tabName) {
+                content.classList.remove('hidden');
+                btn.className = "flex-1 py-2.5 px-2 border-b-2 border-iron-accent text-iron-accent font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 bg-iron-900";
+            } else {
+                content.classList.add('hidden');
+                btn.className = "flex-1 py-2.5 px-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-bold uppercase tracking-wider flex items-center justify-center gap-1.5";
+            }
         });
+    }
 
-        function loadPresetTemplate(key) {
-            const yamlInput = document.getElementById('yaml-input');
-            const engineSelect = document.getElementById('engine-mode-select');
-            if (PRESETS[key] && yamlInput) {
-                yamlInput.value = PRESETS[key];
-                if (key === 'ai_prompt_driven') {
-                    engineSelect.value = 'custom-llm';
-                    toggleEngineModeUI('custom-llm');
+    function populateHourMinuteSelectors() {
+        const h = document.getElementById('cron-hour'), m = document.getElementById('cron-minute');
+        if (!h || !m) return;
+        for (let i = 0; i < 24; i++) { const o = document.createElement('option'); o.value = String(i).padStart(2,'0'); o.textContent = `${o.value}:00`; h.appendChild(o); }
+        h.value = "21";
+        for (let i = 0; i < 60; i += 5) { const o = document.createElement('option'); o.value = String(i).padStart(2,'0'); o.textContent = `:${o.value}`; m.appendChild(o); }
+        m.value = "00";
+    }
+
+    function toggleDay(d) {
+        selectedCronDays = selectedCronDays.includes(d) ? selectedCronDays.filter(x => x !== d) : [...selectedCronDays, d];
+        updateCronDayUI(); updateCustomCron();
+    }
+
+    function updateCronDayUI() {
+        document.querySelectorAll('.cron-day-btn').forEach(btn => {
+            const active = selectedCronDays.includes(btn.getAttribute('data-day'));
+            btn.className = active
+                ? "cron-day-btn py-1 border border-iron-accent bg-iron-accent text-iron-950 font-bold text-[10px]"
+                : "cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-400 font-bold text-[10px]";
+        });
+    }
+
+    function toggleEngineModeUI(mode) {
+        const badge = document.getElementById('engine-badge');
+        if (!badge) return;
+        const map = { auto: ['AUTO-DETECT','text-iron-accent'], json: ['JSON_PARSER','text-cyan-400'],
+            html: ['HTML_PARSER','text-amber-400'], xml: ['XML_PARSER','text-purple-400'],
+            regex: ['REGEX_LEGACY','text-slate-300'], 'custom-llm': ['AI_GATEWAY','text-pink-400'] };
+        const [txt, cls] = map[mode] || map.auto;
+        badge.textContent = txt; badge.className = cls;
+    }
+
+    function startClocks() {
+        setInterval(() => {
+            const now = new Date();
+            const u = document.getElementById('utc-clock'), l = document.getElementById('local-clock');
+            if (u) u.textContent = now.toISOString().substring(11,19);
+            if (l) l.textContent = now.toTimeString().substring(0,8);
+        }, 1000);
+    }
+
+    function logTerminal(msg, type = 'INFO') {
+        const term = document.getElementById('terminal-output');
+        if (!term) return;
+        const ts = new Date().toISOString().substring(11,19);
+        const div = document.createElement('div');
+        const colors = {
+            SUCCESS:'text-green-400', WARNING:'text-amber-300', ERROR:'text-red-400',
+            REGEX:'text-cyan-300', JSON:'text-cyan-300', HTML:'text-amber-300',
+            XML:'text-purple-300', AI:'text-pink-300', INFO:'text-slate-300', FETCH:'text-blue-300'
+        };
+        div.className = `${colors[type] || 'text-slate-300'} flex items-start gap-2`;
+        div.innerHTML = `<span class="text-slate-600">[${ts}]</span> <span class="font-bold">[${type}]</span> <span>${escapeHtml(msg)}</span>`;
+        term.appendChild(div);
+        term.scrollTop = term.scrollHeight;
+        auditLogs.push(`[${ts}] [${type}] ${msg}`);
+    }
+
+    function clearLogs() {
+        const t = document.getElementById('terminal-output');
+        if (t) t.innerHTML = '<div class="text-slate-500">// Log cleared.</div>';
+        auditLogs = [];
+    }
+
+    function escapeHtml(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+    function setProgress(p, step) {
+        const bar = document.getElementById('progress-bar'), pc = document.getElementById('progress-percent'), st = document.getElementById('progress-step-text');
+        if (bar) bar.style.width = `${p}%`;
+        if (pc) pc.textContent = `${p}%`;
+        if (st) st.textContent = step;
+    }
+
+    function setStatusPill(status) {
+        const pill = document.getElementById('status-pill');
+        if (!pill) return;
+        if (status === 'RUNNING') {
+            pill.className = "px-2 py-0.5 text-[11px] bg-green-950 text-green-400 border border-green-800 flex items-center gap-1.5 animate-pulse uppercase";
+            pill.innerHTML = `<span class="w-2 h-2 bg-green-400"></span> PIPELINE_ACTIVE`;
+        } else if (status === 'SAVING') {
+            pill.className = "px-2 py-0.5 text-[11px] bg-amber-950 text-amber-400 border border-amber-800 flex items-center gap-1.5 uppercase";
+            pill.innerHTML = `<span class="w-2 h-2 bg-amber-400"></span> WRITING_DISK`;
+        } else {
+            pill.className = "px-2 py-0.5 text-[11px] bg-iron-850 text-slate-400 border border-iron-700 flex items-center gap-1.5 uppercase";
+            pill.innerHTML = `<span class="w-2 h-2 bg-slate-500"></span> IDLE_STANDBY`;
+        }
+    }
+
+    // ============================== HELPERS ==============================
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    function looksLikeJSON(t) { const s = t.trim(); return (s.startsWith('{') || s.startsWith('[')) && (()=>{try{JSON.parse(s);return true}catch{return false}})(); }
+    function looksLikeHTML(t) { const s = t.trim().toLowerCase(); return s.startsWith('<!doctype html') || s.includes('<html') || s.startsWith('<body') || /<(div|p|span|a|article|section|header|nav)[\s>]/i.test(t.slice(0,500)); }
+    function looksLikeXML(t) { const s = t.trim(); return s.startsWith('<?xml') || (s.startsWith('<') && !looksLikeHTML(t)); }
+
+    function detectContentType(text, header = '') {
+        const h = (header || '').toLowerCase();
+        if (h.includes('json')) return 'json';
+        if (h.includes('html')) return 'html';
+        if (h.includes('xml')) return 'xml';
+        if (looksLikeJSON(text)) return 'json';
+        if (looksLikeXML(text)) return 'xml';
+        if (looksLikeHTML(text)) return 'html';
+        return 'text';
+    }
+
+    // Simple JSONPath supporting: $.a.b, $.arr[*], $.arr[0], $.arr[0].name
+    function jsonPath(obj, path) {
+        if (!path || path === '$') return obj;
+        let p = String(path).trim().replace(/^\$\.?/, '');
+        if (!p) return obj;
+        const parts = p.split(/\.(?![^\[]*\])/);
+        let current = [obj];
+        for (const part of parts) {
+            const m = part.match(/^([^\[\]]+)?(?:\[([^\]]+)\])?$/);
+            if (!m) { current = []; break; }
+            const key = m[1]; const bracket = m[2];
+            const next = [];
+            for (const item of current) {
+                let t = key ? item?.[key] : item;
+                if (bracket === undefined) { next.push(t); continue; }
+                if (bracket === '*') {
+                    if (Array.isArray(t)) next.push(...t);
+                    else if (t && typeof t === 'object') next.push(...Object.values(t));
+                } else if (/^\d+$/.test(bracket)) {
+                    next.push(t?.[parseInt(bracket, 10)]);
                 } else {
-                    engineSelect.value = 'regex';
-                    toggleEngineModeUI('regex');
+                    const cleanKey = bracket.replace(/^['"]|['"]$/g, '');
+                    next.push(t?.[cleanKey]);
                 }
-                logTerminal(`Loaded template: [${key.toUpperCase()}]`, "INFO");
             }
+            current = next.filter(x => x !== undefined && x !== null);
         }
+        return current.length === 1 ? current[0] : current;
+    }
 
-        function switchTab(tabName) {
-            ['pipeline', 'scheduler', 'ai'].forEach(t => {
-                const content = document.getElementById(`tab-${t}`);
-                const btn = document.getElementById(`tab-btn-${t}`);
-                if (content && btn) {
-                    if (t === tabName) {
-                        content.classList.remove('hidden');
-                        btn.className = "flex-1 py-2.5 px-3 border-b-2 border-iron-accent text-iron-accent font-bold uppercase tracking-wider flex items-center justify-center gap-2 bg-iron-900";
-                    } else {
-                        content.classList.add('hidden');
-                        btn.className = "flex-1 py-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-bold uppercase tracking-wider flex items-center justify-center gap-2";
-                    }
-                }
-            });
-        }
+    // Transformations
+    const TRANSFORMS = {
+        trim: v => v == null ? v : String(v).trim(),
+        lowercase: v => v == null ? v : String(v).toLowerCase(),
+        uppercase: v => v == null ? v : String(v).toUpperCase(),
+        number: v => { const n = Number(v); return isNaN(n) ? null : n; },
+        int: v => { const n = parseInt(v, 10); return isNaN(n) ? null : n; },
+        float: v => { const n = parseFloat(v); return isNaN(n) ? null : n; },
+        boolean: v => v === 'true' || v === '1' || v === true,
+        strip_html: v => v == null ? v : String(v).replace(/<[^>]*>/g, '').trim(),
+        slug: v => v == null ? v : String(v).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+        extract_email: v => v == null ? null : (String(v).match(/[\w.+-]+@[\w-]+\.[\w.]+/) || [null])[0],
+        extract_url: v => v == null ? null : (String(v).match(/https?:\/\/[^\s"'<>]+/) || [null])[0],
+        prefix_url: (v, arg) => v == null ? v : (String(v).startsWith('http') ? v : (arg || '') + v),
+        date_iso: v => { if (!v) return null; const d = new Date(v); return isNaN(d) ? null : d.toISOString(); },
+    };
 
-        function populateHourMinuteSelectors() {
-            const hourSelect = document.getElementById('cron-hour');
-            const minSelect = document.getElementById('cron-minute');
-            if (!hourSelect || !minSelect) return;
-            hourSelect.innerHTML = ''; minSelect.innerHTML = '';
-            for (let i = 0; i < 24; i++) {
-                const opt = document.createElement('option');
-                const val = i.toString().padStart(2, '0');
-                opt.value = val; opt.textContent = `${val}:00`;
-                hourSelect.appendChild(opt);
-            }
-            hourSelect.value = "21";
-            for (let i = 0; i < 60; i += 5) {
-                const opt = document.createElement('option');
-                const val = i.toString().padStart(2, '0');
-                opt.value = val; opt.textContent = `:${val}`;
-                minSelect.appendChild(opt);
-            }
-            minSelect.value = "00";
-        }
+    function applyTransform(value, transform) {
+        let name, arg;
+        if (Array.isArray(transform)) { [name, arg] = transform; }
+        else if (typeof transform === 'string') { name = transform; }
+        else if (transform && transform.name) { name = transform.name; arg = transform.arg; }
+        else return value;
+        const fn = TRANSFORMS[name];
+        if (!fn) { logTerminal(`Unknown transform: ${name}`, 'WARNING'); return value; }
+        try { return fn(value, arg); }
+        catch (e) { logTerminal(`Transform error (${name}): ${e.message}`, 'WARNING'); return value; }
+    }
 
-        function toggleDay(dayStr) {
-            if (selectedCronDays.includes(dayStr)) {
-                selectedCronDays = selectedCronDays.filter(d => d !== dayStr);
-            } else {
-                selectedCronDays.push(dayStr);
-            }
-            updateCronDayUI();
-            updateCustomCron();
-        }
+    function coerceType(value, type) {
+        if (value == null || value === '') return null;
+        if (!type) return value;
+        if (type === 'number') { const n = Number(value); return isNaN(n) ? null : n; }
+        if (type === 'int') { const n = parseInt(value, 10); return isNaN(n) ? null : n; }
+        if (type === 'float') { const n = parseFloat(value); return isNaN(n) ? null : n; }
+        if (type === 'boolean') return value === 'true' || value === '1' || value === true;
+        if (type === 'string') return String(value);
+        return value;
+    }
 
-        function updateCronDayUI() {
-            document.querySelectorAll('.cron-day-btn').forEach(btn => {
-                const day = btn.getAttribute('data-day');
-                if (selectedCronDays.includes(day)) {
-                    btn.className = "cron-day-btn py-1 border border-iron-accent bg-iron-accent text-iron-950 font-bold text-[10px] text-center";
-                } else {
-                    btn.className = "cron-day-btn py-1 border border-iron-700 bg-iron-900 text-slate-400 font-bold text-[10px] text-center";
-                }
-            });
-        }
+    function validateField(value, rules) {
+        if (!rules) return true;
+        if (rules.required && (value == null || value === '')) return false;
+        if (rules.not_empty && (value == null || String(value).trim() === '')) return false;
+        if (rules.min != null && Number(value) < rules.min) return false;
+        if (rules.max != null && Number(value) > rules.max) return false;
+        if (rules.pattern && !new RegExp(rules.pattern).test(String(value))) return false;
+        return true;
+    }
 
-        function toggleEngineModeUI(mode) {
-            const badge = document.getElementById('engine-badge');
-            if (!badge) return;
-            if (mode === 'regex') {
-                badge.textContent = "LOCAL REGEX (OFFLINE)";
-                badge.className = "text-iron-accent";
-                logTerminal('Engine set to: LOCAL REGEX', 'INFO');
-            } else {
-                badge.textContent = "CUSTOM AI ENDPOINT";
-                badge.className = "text-amber-400";
-                logTerminal('Engine set to: PROMPT-DRIVEN AI GATEWAY', 'WARNING');
-            }
-        }
+    function dedupeRecords(records, keyPath) {
+        if (!keyPath || !Array.isArray(records)) return records;
+        const seen = new Set();
+        return records.filter(r => {
+            const k = jsonPath(r, keyPath);
+            if (k === undefined || k === null || k === '') return true;
+            const key = String(k);
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+    }
 
-        function startClocks() {
-            setInterval(() => {
-                const now = new Date();
-                const utcEl = document.getElementById('utc-clock');
-                const localEl = document.getElementById('local-clock');
-                if (utcEl) utcEl.textContent = now.toISOString().substring(11, 19);
-                if (localEl) localEl.textContent = now.toTimeString().substring(0, 8);
-            }, 1000);
-        }
+    // ============================== HTTP: MULTI-PROXY FETCH ==============================
+    async function robustFetch(url, spec = {}) {
+        const timeout = spec.timeout || 20000;
+        const retries = Math.max(1, spec.retries || 3);
+        const headers = spec.headers || {};
+        const method = (spec.method || 'GET').toUpperCase();
+        const body = spec.body || null;
 
-        function logTerminal(message, type = 'INFO') {
-            const terminal = document.getElementById('terminal-output');
-            if (!terminal) return;
-            const timestamp = new Date().toISOString().substring(11, 19);
-            const entry = document.createElement('div');
-            
-            let colorClass = 'text-slate-300';
-            let badgeClass = 'text-iron-accent';
+        const proxies = [
+            { name: 'direct',     wrap: u => u, direct: true },
+            { name: 'allorigins', wrap: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` },
+            { name: 'codetabs',   wrap: u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}` },
+            { name: 'corsproxy',  wrap: u => `https://corsproxy.io/?url=${encodeURIComponent(u)}` },
+            { name: 'allorigins_json', wrap: u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, isJsonWrapped: true },
+        ];
 
-            if (type === 'SUCCESS') { colorClass = 'text-green-400'; badgeClass = 'text-green-400 font-bold'; }
-            else if (type === 'WARNING') { colorClass = 'text-amber-300'; badgeClass = 'text-amber-400 font-bold'; }
-            else if (type === 'ERROR') { colorClass = 'text-red-400'; badgeClass = 'text-red-500 font-bold'; }
-            else if (type === 'REGEX') { colorClass = 'text-cyan-300'; badgeClass = 'text-cyan-400 font-bold'; }
-            else if (type === 'AI') { colorClass = 'text-purple-300'; badgeClass = 'text-purple-400 font-bold'; }
+        let lastError = null;
 
-            entry.className = `${colorClass} flex items-start gap-2`;
-            entry.innerHTML = `<span class="text-slate-600 font-mono">[${timestamp}]</span> <span class="${badgeClass}">[${type}]</span> <span>${escapeHtml(message)}</span>`;
-            
-            terminal.appendChild(entry);
-            terminal.scrollTop = terminal.scrollHeight;
-            auditLogs.push(`[${timestamp}] [${type}] ${message}`);
-        }
-
-        function clearLogs() {
-            const terminal = document.getElementById('terminal-output');
-            if (terminal) terminal.innerHTML = '<div class="text-slate-500">// Log buffer cleared.</div>';
-            auditLogs = [];
-        }
-
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
-        function setProgress(percent, stepText) {
-            const bar = document.getElementById('progress-bar');
-            const percentEl = document.getElementById('progress-percent');
-            const stepEl = document.getElementById('progress-step-text');
-            if (bar) bar.style.width = `${percent}%`;
-            if (percentEl) percentEl.textContent = `${percent}%`;
-            if (stepEl) stepEl.textContent = stepText;
-        }
-
-        function setStatusPill(status) {
-            const pill = document.getElementById('status-pill');
-            if (!pill) return;
-            if (status === 'RUNNING') {
-                pill.className = "px-2 py-0.5 text-[11px] rounded-none bg-green-950 text-green-400 border border-green-800 flex items-center gap-1.5 animate-pulse uppercase";
-                pill.innerHTML = `<span class="w-2 h-2 bg-green-400"></span> PIPELINE_ACTIVE`;
-            } else if (status === 'SAVING') {
-                pill.className = "px-2 py-0.5 text-[11px] rounded-none bg-amber-950 text-amber-400 border border-amber-800 flex items-center gap-1.5 uppercase";
-                pill.innerHTML = `<span class="w-2 h-2 bg-amber-400"></span> WRITING_DISK`;
-            } else {
-                pill.className = "px-2 py-0.5 text-[11px] rounded-none bg-iron-850 text-slate-400 border border-iron-700 flex items-center gap-1.5 uppercase";
-                pill.innerHTML = `<span class="w-2 h-2 bg-slate-500"></span> IDLE_STANDBY`;
-            }
-        }
-
-        // --- CORE ENGINE CON VALIDACIÓN ANTIFALSOS ---
-        async function runPipelineManual() {
-            runPipeline('MANUAL_TRIGGER');
-        }
-
-        async function runPipeline(triggerSource = 'CRON_TRIGGER') {
-            const yamlText = document.getElementById('yaml-input')?.value || "";
-            setStatusPill('RUNNING');
-            setProgress(15, 'PARSING_YAML_SPEC');
-            
-            logTerminal(`Initiating pipeline execution...`, 'INFO');
-
-            let targetUrl = "";
-            const urlMatch = yamlText.match(/target_url:\s*"([^"]+)"/) || yamlText.match(/target_url:\s*([^\s]+)/);
-            if (urlMatch && urlMatch[1]) {
-                targetUrl = urlMatch[1].trim();
-            } else {
-                logTerminal(`Error: No valid 'target_url' found in YAML spec!`, 'ERROR');
-                setProgress(0, 'FAILED');
-                setStatusPill('IDLE');
-                return;
+        for (let attempt = 0; attempt < retries; attempt++) {
+            if (attempt > 0) {
+                const backoff = 800 * Math.pow(2, attempt - 1);
+                logTerminal(`Retry ${attempt + 1}/${retries} in ${backoff}ms...`, 'WARNING');
+                await sleep(backoff);
             }
 
-            const selectedEngine = document.getElementById('engine-mode-select')?.value || 'regex';
-
-            try {
-                setProgress(40, 'HTTP_FETCH_ENDPOINT');
-                logTerminal(`Fetching target endpoint: ${targetUrl}`, 'INFO');
-                
-                let fetchedContent = "";
+            for (const proxy of proxies) {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 4000);
+                const toId = setTimeout(() => controller.abort(), timeout);
 
                 try {
-                    const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`, {
-                        signal: controller.signal
-                    });
-                    clearTimeout(timeoutId);
-                    if (response.ok) {
-                        const data = await response.json();
-                        fetchedContent = data.contents;
-                        logTerminal(`HTTP 200 OK - Payload size: ${Math.round(fetchedContent.length / 1024)} KB`, 'SUCCESS');
-                    } else {
-                        throw new Error(`HTTP ${response.status}`);
+                    logTerminal(`[FETCH:${proxy.name}] ${method} ...`, 'FETCH');
+                    const opts = { signal: controller.signal };
+                    if (proxy.direct) {
+                        opts.method = method;
+                        if (Object.keys(headers).length) opts.headers = headers;
+                        if (body) opts.body = body;
                     }
-                } catch (err) {
-                    logTerminal(`Direct fetch bypassed (${err.message}). Parsing local backup stream...`, 'WARNING');
-                    try {
-                        const directRes = await fetch(targetUrl);
-                        if (directRes.ok) fetchedContent = await directRes.text();
-                    } catch (e) {}
-                }
 
-                setProgress(70, selectedEngine === 'regex' ? 'REGEX_PARSING_STRICT' : 'AI_PROMPT_NORMALIZATION');
-                let extractedData = [];
+                    const res = await fetch(proxy.wrap(url), opts);
+                    clearTimeout(toId);
 
-                if (selectedEngine === 'regex') {
-                    logTerminal(`Executing strict Regex parsing rules with zero-false-positive validation...`, 'REGEX');
-                    extractedData = parseCleanRegex(fetchedContent, targetUrl, yamlText);
-                } else {
-                    logTerminal(`Executing Prompt-Driven AI Gateway...`, 'AI');
-                    extractedData = await executePromptDrivenAI(targetUrl, yamlText, fetchedContent);
-                }
+                    if (!res.ok) { lastError = new Error(`HTTP ${res.status}`); continue; }
 
-                const recordsCount = Array.isArray(extractedData) ? extractedData.length : Object.keys(extractedData).length;
-
-                setProgress(90, 'BUFFER_RENDER');
-                lastExtractedData = extractedData;
-                
-                const jsonString = JSON.stringify(extractedData, null, 2);
-                document.getElementById('extracted-json-preview').textContent = jsonString;
-                document.getElementById('metric-records').textContent = recordsCount;
-                document.getElementById('metric-size').textContent = `${(jsonString.length / 1024).toFixed(2)} KB`;
-
-                logTerminal(`Extraction complete! Valid records captured: ${recordsCount}`, 'SUCCESS');
-
-                if (document.getElementById('autosave-toggle')?.checked && localDirHandle) {
-                    setStatusPill('SAVING');
-                    setProgress(95, 'WRITING_LOCAL_FILE');
-                    await autoSaveToLocalDirectory(jsonString);
-                }
-
-                setProgress(100, 'FINISHED');
-                logTerminal(`Audit cycle completed successfully.`, 'SUCCESS');
-                document.getElementById('footer-last-run').textContent = `LAST_RUN: ${new Date().toLocaleTimeString()}`;
-
-            } catch (error) {
-                logTerminal(`Pipeline execution failed: ${error.message}`, 'ERROR');
-                setProgress(0, 'FAILED');
-            } finally {
-                setStatusPill('IDLE');
-                setTimeout(() => setProgress(0, 'IDLE'), 1200);
-            }
-        }
-
-        // MOTOR REGEX BLINDADO CONTRA FALSOS POSITIVOS
-        function parseCleanRegex(content, targetUrl, yamlSpec) {
-            const results = [];
-            const patternMatch = yamlSpec.match(/container_pattern:\s*"([^"]+)"/) || yamlSpec.match(/container_pattern:\s*([^\n]+)/);
-            
-            if (patternMatch && patternMatch[1]) {
-                try {
-                    const rawPat = patternMatch[1].trim().replace(/^"|"$/g, '');
-                    const cleanPat = rawPat.replace(/\\\\/g, '\\');
-                    const userPattern = new RegExp(cleanPat, 'g');
-                    
-                    let match;
-                    let count = 0;
-                    while ((match = userPattern.exec(content)) !== null && count < 50) {
-                        // Filtro anti-falsos positivos: Evitar registros vacíos o nulos críticos
-                        if (!match[1] || match[1].trim() === "") continue;
-                        
-                        count++;
-                        const record = {
-                            record_id: `REC_${count.toString().padStart(3, '0')}`,
-                            target_url: targetUrl
-                        };
-                        for (let i = 1; i < match.length; i++) {
-                            let val = match[i] ? match[i].trim() : null;
-                            // Conversión inteligente de tipos numéricos si aplica
-                            if (val !== null && !isNaN(val) && val !== "") {
-                                val = Number(val);
-                            }
-                            record[`field_${i}`] = val;
-                        }
-                        results.push(record);
+                    let text = await res.text();
+                    if (proxy.isJsonWrapped) {
+                        try {
+                            const parsed = JSON.parse(text);
+                            text = parsed.contents || parsed.data || '';
+                        } catch { /* use raw */ }
                     }
+
+                    if (!text || text.length < 10) { lastError = new Error('Empty response'); continue; }
+
+                    logTerminal(`[FETCH:${proxy.name}] OK → ${(text.length/1024).toFixed(2)} KB`, 'SUCCESS');
+                    return {
+                        text,
+                        status: res.status,
+                        contentType: res.headers.get('content-type') || '',
+                        via: proxy.name
+                    };
                 } catch (e) {
-                    logTerminal(`Regex evaluation notice: ${e.message}`, 'INFO');
+                    clearTimeout(toId);
+                    lastError = e;
                 }
             }
+        }
+        throw lastError || new Error('All fetch strategies failed');
+    }
 
-            // Fallback robusto con validación tipada para sismología USGS
-            if (results.length === 0 && content) {
-                const geoMatches = content.match(/"mag":([0-9.]+),\s*"place":"([^"]+)"/g);
-                if (geoMatches) {
-                    geoMatches.slice(0, 15).forEach((item, idx) => {
-                        const m = item.match(/"mag":([0-9.]+),\s*"place":"([^"]+)"/);
-                        if (m && m[1] && m[2]) {
-                            const magVal = parseFloat(m[1]);
-                            // Validación estricta: Ignorar magnitudes erróneas o ficticias
-                            if (!isNaN(magVal) && magVal >= -1.0 && magVal <= 10.0) {
-                                results.push({
-                                    record_id: `QUAKE_${(idx+1).toString().padStart(3, '0')}`,
-                                    magnitude: magVal,
-                                    location: m[2].trim(),
-                                    timestamp: new Date().toISOString()
-                                });
-                            }
-                        }
-                    });
+    // ============================== EXTRACTION ENGINES ==============================
+    function extractJSON(text, extraction) {
+        logTerminal('Parsing as JSON...', 'JSON');
+        let data;
+        try { data = JSON.parse(text); }
+        catch (e) { throw new Error(`Invalid JSON: ${e.message}`); }
+
+        let items = extraction.root_path ? jsonPath(data, extraction.root_path) : data;
+        if (!Array.isArray(items)) items = items == null ? [] : [items];
+
+        const fields = extraction.fields || [];
+        return items.map((item, idx) => {
+            const rec = {};
+            for (const f of fields) {
+                let val = f.path ? jsonPath(item, f.path) : item;
+                if (Array.isArray(val) && val.length === 1) val = val[0];
+                if (Array.isArray(val)) val = val.join(', ');
+                val = coerceType(val, f.type);
+                if (f.transform) {
+                    const ts = Array.isArray(f.transform) ? f.transform : [f.transform];
+                    for (const t of ts) val = applyTransform(val, t);
                 }
+                if (f.required && (val == null || val === '')) {
+                    if (!f.allow_null) return null;
+                }
+                if (f.validate && !validateField(val, f.validate)) {
+                    if (!f.allow_null) return null;
+                }
+                rec[f.name] = val;
             }
+            return Object.keys(rec).length ? rec : null;
+        }).filter(Boolean);
+    }
 
-            if (results.length === 0) {
-                logTerminal(`Warning: Zero records matched pattern. Returning valid fallback placeholder.`, 'WARNING');
-                results.push({
-                    record_id: "REC_001",
-                    target_url: targetUrl,
-                    status: "PARSED_EMPTY_NO_MATCH",
-                    timestamp: new Date().toISOString()
-                });
+    function extractHTML(html, extraction) {
+        logTerminal('Parsing as HTML (CSS selectors)...', 'HTML');
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const itemSel = extraction.item_selector || 'body';
+        const items = doc.querySelectorAll(itemSel);
+        const fields = extraction.fields || [];
+
+        return Array.from(items).slice(0, extraction.max_items || 500).map(node => {
+            const rec = {};
+            for (const f of fields) {
+                const el = f.selector ? node.querySelector(f.selector) : node;
+                let val = null;
+                if (el) {
+                    if (!f.attr || f.attr === 'text') val = el.textContent.trim();
+                    else if (f.attr === 'html') val = el.innerHTML;
+                    else val = el.getAttribute(f.attr);
+                }
+                val = coerceType(val, f.type);
+                if (f.transform) {
+                    const ts = Array.isArray(f.transform) ? f.transform : [f.transform];
+                    for (const t of ts) val = applyTransform(val, t);
+                }
+                if (f.required && (val == null || val === '')) return null;
+                rec[f.name] = val;
             }
+            return Object.keys(rec).length ? rec : null;
+        }).filter(Boolean);
+    }
 
-            return results;
-        }
+    function extractXML(xml, extraction) {
+        logTerminal('Parsing as XML (XPath)...', 'XML');
+        const doc = new DOMParser().parseFromString(xml, 'application/xml');
+        const parseErr = doc.querySelector('parsererror');
+        if (parseErr) throw new Error('XML parse error');
 
-        // MOTOR IA CON PROMPTS ESTRUCTURADOS
-        async function executePromptDrivenAI(targetUrl, yamlSpec, rawContent) {
-            const endpoint = document.getElementById('ai-endpoint-url')?.value;
-            const apiKey = document.getElementById('ai-api-key')?.value;
-            const modelId = document.getElementById('ai-model-id')?.value;
+        const itemXPath = extraction.item_xpath || '/*';
+        let items;
+        try {
+            const r = doc.evaluate(itemXPath, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+            items = Array.from({ length: r.snapshotLength }, (_, i) => r.snapshotItem(i));
+        } catch { items = []; }
 
-            if (!endpoint) throw new Error("Missing AI Endpoint URL");
-
-            const prompt = `Target URL: ${targetUrl}\nYAML Spec & Prompt Instructions:\n${yamlSpec}\n\nRaw Body Sample:\n${rawContent.substring(0, 3000)}\n\nPerform prompt-driven extraction, filter out false positives or empty objects, and return a strict JSON array.`;
-
-            const headers = { 'Content-Type': 'application/json' };
-            if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
-            const urlWithKey = endpoint.includes('key=') ? endpoint : `${endpoint}?key=${apiKey}`;
-
-            try {
-                const res = await fetch(urlWithKey, {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify({ model: modelId, messages: [{ role: "user", content: prompt }] })
-                });
-
-                if (!res.ok) throw new Error(`AI API HTTP ${res.status}`);
-                const data = await res.json();
-                const responseText = data.choices?.[0]?.message?.content || data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (responseText) return JSON.parse(responseText.replace(/```json|```/g, '').trim());
-                throw new Error("Empty AI response payload");
-            } catch (err) {
-                logTerminal(`AI Prompt Gateway fallback: ${err.message}`, 'WARNING');
-                return [
-                    {
-                        ai_status: "PROMPT_EXECUTED_SUCCESSFULLY",
-                        target: targetUrl,
-                        prompt_mode: "active",
-                        summary: "Extracted and structured clean dataset preventing false positives.",
-                        timestamp: new Date().toISOString()
-                    }
-                ];
-            }
-        }
-
-        async function requestDirectoryAccess() {
-            if ('showDirectoryPicker' in window) {
+        const fields = extraction.fields || [];
+        return items.map(node => {
+            const rec = {};
+            for (const f of fields) {
+                let val = null;
                 try {
-                    localDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-                    document.getElementById('dir-btn-label').textContent = `Folder: ${localDirHandle.name}`;
-                    document.getElementById('dir-status').innerHTML = `STATUS: <span class="text-green-400 font-bold">LINKED (${localDirHandle.name})</span>`;
-                    document.getElementById('footer-dir-name').textContent = localDirHandle.name.toUpperCase();
-                    logTerminal(`Linked directory: ${localDirHandle.name}`, 'SUCCESS');
-                } catch (err) {
-                    if (err.name !== 'AbortError') logTerminal(`Directory error: ${err.message}`, 'ERROR');
+                    const r = doc.evaluate(f.xpath, node, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+                    const n = r.singleNodeValue;
+                    if (n) val = n.nodeValue != null ? n.nodeValue : n.textContent;
+                } catch {}
+                val = coerceType(val, f.type);
+                if (f.transform) {
+                    const ts = Array.isArray(f.transform) ? f.transform : [f.transform];
+                    for (const t of ts) val = applyTransform(val, t);
                 }
-            } else { alert("File System Access API unsupported."); }
-        }
-
-        async function autoSaveToLocalDirectory(contentString) {
-            if (!localDirHandle) return;
-            try {
-                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                const fileName = `audit_data_${timestamp}.json`;
-                const fileHandle = await localDirHandle.getFileHandle(fileName, { create: true });
-                const writable = await fileHandle.createWritable();
-                await writable.write(contentString);
-                await writable.close();
-                logTerminal(`Wrote dataset to disk: ${fileName}`, 'SUCCESS');
-            } catch (err) { logTerminal(`Failed saving dataset: ${err.message}`, 'ERROR'); }
-        }
-
-        function updateCustomCron() {
-            const isEnabled = document.getElementById('cron-enabled')?.checked;
-            const hour = document.getElementById('cron-hour')?.value;
-            const minute = document.getElementById('cron-minute')?.value;
-            if (cronCheckIntervalId) clearInterval(cronCheckIntervalId);
-            if (!isEnabled || selectedCronDays.length === 0) {
-                document.getElementById('next-run-countdown').textContent = 'STANDBY';
-                logTerminal('Cron scheduler disabled.', 'INFO');
-                return;
+                if (f.required && (val == null || val === '')) return null;
+                rec[f.name] = val;
             }
-            logTerminal(`Cron active: [${selectedCronDays.join(', ')}] @ ${hour}:${minute}`, 'INFO');
-            document.getElementById('next-run-countdown').textContent = `ACTIVE (${hour}:${minute})`;
-            cronCheckIntervalId = setInterval(() => {
-                const now = new Date();
-                const dayMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                if (selectedCronDays.includes(dayMap[now.getDay()]) && now.getHours().toString().padStart(2, '0') === hour && now.getMinutes().toString().padStart(2, '0') === minute) {
-                    logTerminal(`Cron Trigger Fired!`, 'SUCCESS');
-                    runPipeline('SCHEDULED_CRON');
+            return Object.keys(rec).length ? rec : null;
+        }).filter(Boolean);
+    }
+
+    function extractRegex(text, extraction, spec) {
+        logTerminal('Parsing with Regex...', 'REGEX');
+        // Support both new extraction.pattern and legacy regex_rules.container_pattern
+        let pattern = extraction.pattern;
+        let fields = extraction.fields || [];
+
+        if (!pattern && spec.regex_rules) {
+            pattern = spec.regex_rules.container_pattern;
+            const legacy = spec.regex_rules.fields || [];
+            fields = legacy.map(f => ({ name: f.name || `field_${f.group_index}`, group: f.group_index }));
+        }
+
+        if (!pattern) throw new Error('No regex pattern in spec');
+
+        let regex;
+        try { regex = new RegExp(pattern, 'g'); }
+        catch (e) { throw new Error(`Invalid regex: ${e.message}`); }
+
+        const results = [];
+        const max = extraction.max_items || 100;
+        let m, count = 0;
+        while ((m = regex.exec(text)) !== null && count < max) {
+            if (m.index === regex.lastIndex) regex.lastIndex++;
+            const rec = {};
+            for (const f of fields) {
+                let val = m[f.group] ?? null;
+                if (typeof val === 'string') val = val.trim();
+                if (!val) continue;
+                val = coerceType(val, f.type);
+                if (f.transform) {
+                    const ts = Array.isArray(f.transform) ? f.transform : [f.transform];
+                    for (const t of ts) val = applyTransform(val, t);
                 }
-            }, 30000);
+                rec[f.name] = val;
+            }
+            if (Object.keys(rec).length) { results.push(rec); count++; }
+        }
+        return results;
+    }
+
+    // ============================== AI ENGINE ==============================
+    async function executeAI(targetUrl, yamlSpec, rawContent, aiConfig) {
+        const endpoint = document.getElementById('ai-endpoint-url')?.value;
+        const apiKey = document.getElementById('ai-api-key')?.value;
+        const modelId = document.getElementById('ai-model-id')?.value;
+        const provider = document.getElementById('ai-provider')?.value || 'gemini';
+
+        if (!endpoint) throw new Error('Missing AI endpoint');
+        if (!apiKey) throw new Error('Missing API key');
+
+        const userPrompt = aiConfig.user_prompt || `Extract all structured records from the data. Return a JSON array.`;
+        const fullPrompt = `Target URL: ${targetUrl}\nInstructions: ${userPrompt}\n\nRaw content sample (truncated):\n${rawContent.substring(0, 8000)}\n\nReturn ONLY valid JSON (no markdown, no explanation).`;
+
+        let url, headers, body;
+
+        if (provider === 'gemini' || endpoint.includes('googleapis.com')) {
+            const sep = endpoint.includes('?') ? '&' : '?';
+            url = endpoint.includes('key=') ? endpoint : `${endpoint}${sep}key=${apiKey}`;
+            headers = { 'Content-Type': 'application/json' };
+            body = JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] });
+        } else {
+            url = endpoint;
+            headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` };
+            body = JSON.stringify({
+                model: modelId,
+                messages: [
+                    { role: 'system', content: 'You are a data extraction engine. Respond with valid JSON only.' },
+                    { role: 'user', content: fullPrompt }
+                ],
+                temperature: 0.1
+            });
         }
 
-        function downloadAuditReportTXT() {
-            const timestamp = new Date().toISOString();
-            let report = `=======================================================\n  HEAVY ENGINE // AUDIT REPORT\n  GENERATED: ${timestamp}\n=======================================================\n\n`;
-            report += `--- YAML SPEC ---\n` + (document.getElementById('yaml-input')?.value || "") + `\n\n`;
-            report += `--- LOGS ---\n`;
-            auditLogs.forEach(l => report += `${l}\n`);
-            report += `\n--- PAYLOAD ---\n` + (lastExtractedData ? JSON.stringify(lastExtractedData, null, 2) : "No data.");
-
-            const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `audit_report_${Date.now()}.txt`;
-            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-            logTerminal(`Downloaded audit report TXT.`, 'SUCCESS');
+        logTerminal(`POST ${url.substring(0, 80)}...`, 'AI');
+        const res = await fetch(url, { method: 'POST', headers, body });
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`AI API HTTP ${res.status}: ${errText.substring(0, 200)}`);
         }
 
-        function downloadJsonPayload() {
-            if (!lastExtractedData) { alert("No extracted payload buffer available!"); return; }
-            const blob = new Blob([JSON.stringify(lastExtractedData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `extracted_payload_${Date.now()}.json`;
-            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+                  || data.choices?.[0]?.message?.content
+                  || data.content?.[0]?.text;
+
+        if (!text) throw new Error('Empty AI response');
+
+        // Strip markdown fences if present
+        const clean = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/,'').trim();
+        try { return JSON.parse(clean); }
+        catch {
+            // Try to extract JSON array/object
+            const arrMatch = clean.match(/\[[\s\S]*\]/);
+            const objMatch = clean.match(/\{[\s\S]*\}/);
+            const candidate = arrMatch?.[0] || objMatch?.[0];
+            if (candidate) return JSON.parse(candidate);
+            throw new Error('AI did not return valid JSON');
         }
+    }
+
+    // ============================== MAIN PIPELINE ==============================
+    async function runPipelineManual() { runPipeline('MANUAL_TRIGGER'); }
+
+    async function runPipeline(triggerSource = 'CRON_TRIGGER') {
+        const yamlText = document.getElementById('yaml-input')?.value || '';
+        setStatusPill('RUNNING');
+        setProgress(5, 'PARSING_YAML');
+        lastExtractedData = null;
+
+        logTerminal(`=== PIPELINE START [${triggerSource}] ===`, 'INFO');
+
+        // 1. Parse YAML
+        let spec;
+        try {
+            spec = (window.jsyaml || window.jsYaml).load(yamlText);
+            if (!spec || typeof spec !== 'object') throw new Error('YAML parsed to empty/invalid object');
+            logTerminal(`Spec: ${spec.name || '(unnamed)'} | engine=${spec.engine || 'auto'}`, 'SUCCESS');
+        } catch (e) {
+            logTerminal(`YAML parse error: ${e.message}`, 'ERROR');
+            setProgress(0, 'YAML_ERROR'); setStatusPill('IDLE');
+            return;
+        }
+
+        if (!spec.target_url) {
+            logTerminal('Missing "target_url" in spec', 'ERROR');
+            setProgress(0, 'INVALID_SPEC'); setStatusPill('IDLE');
+            return;
+        }
+
+        // 2. Fetch (with pagination)
+        let fetchedText = '';
+        let detectedType = '';
+        try {
+            setProgress(15, 'FETCHING');
+            const pagination = spec.pagination;
+            if (pagination?.enabled) {
+                const maxPages = pagination.max_pages || 3;
+                const paramName = pagination.param_name || 'page';
+                const start = pagination.start || 1;
+                const step = pagination.step || 1;
+                const chunks = [];
+                for (let i = 0; i < maxPages; i++) {
+                    const page = start + i * step;
+                    const sep = spec.target_url.includes('?') ? '&' : '?';
+                    const url = `${spec.target_url}${sep}${paramName}=${page}`;
+                    logTerminal(`Pagination page ${page}/${maxPages}`, 'INFO');
+                    setProgress(15 + Math.floor((i / maxPages) * 20), `FETCH_PAGE_${page}`);
+                    const r = await robustFetch(url, spec);
+                    chunks.push(r.text);
+                    if (pagination.stop_when_empty && r.text.trim().length < 100) break;
+                    if (spec.rate_limit_ms) await sleep(spec.rate_limit_ms);
+                }
+                fetchedText = chunks.join('\n');
+            } else {
+                const r = await robustFetch(spec.target_url, spec);
+                fetchedText = r.text;
+                detectedType = detectContentType(r.text, r.contentType);
+                logTerminal(`Content-Type detected: ${detectedType.toUpperCase()}`, 'SUCCESS');
+            }
+        } catch (e) {
+            logTerminal(`Fetch failed: ${e.message}`, 'ERROR');
+            setProgress(0, 'FETCH_ERROR'); setStatusPill('IDLE');
+            return;
+        }
+
+        // 3. Extraction
+        setProgress(60, 'EXTRACTING');
+        let extracted = [];
+        try {
+            const engine = spec.engine || document.getElementById('engine-mode-select')?.value || 'auto';
+            const extraction = spec.extraction || {};
+
+            if (engine === 'custom-llm' || spec.ai_transformation_config) {
+                logTerminal('Executing AI gateway...', 'AI');
+                extracted = await executeAI(spec.target_url, yamlText, fetchedText, spec.ai_transformation_config || {});
+                if (!Array.isArray(extracted)) extracted = [extracted];
+            } else {
+                let type = extraction.type || engine;
+                if (type === 'auto') type = detectedType || 'text';
+
+                if (type === 'json') extracted = extractJSON(fetchedText, extraction);
+                else if (type === 'html') extracted = extractHTML(fetchedText, extraction);
+                else if (type === 'xml') extracted = extractXML(fetchedText, extraction);
+                else if (type === 'regex') extracted = extractRegex(fetchedText, extraction, spec);
+                else throw new Error(`Unsupported extraction type: ${type}`);
+            }
+
+            logTerminal(`Raw records extracted: ${extracted.length}`, 'SUCCESS');
+        } catch (e) {
+            logTerminal(`Extraction failed: ${e.message}`, 'ERROR');
+            setProgress(0, 'EXTRACTION_ERROR'); setStatusPill('IDLE');
+            return;
+        }
+
+        // 4. Validation & dedup
+        setProgress(80, 'VALIDATING');
+        if (spec.validate) {
+            extracted = extracted.filter(r => {
+                for (const [k, rules] of Object.entries(spec.validate)) {
+                    if (!validateField(r[k], rules)) return false;
+                }
+                return true;
+            });
+            logTerminal(`After validation: ${extracted.length} records`, 'INFO');
+        }
+        if (spec.dedupe_by) {
+            const before = extracted.length;
+            extracted = dedupeRecords(extracted, spec.dedupe_by);
+            logTerminal(`Deduplication: ${before} → ${extracted.length} records`, 'INFO');
+        }
+
+        // 5. Render
+        lastExtractedData = extracted;
+        const jsonString = JSON.stringify(extracted, null, 2);
+        document.getElementById('extracted-json-preview').textContent = jsonString;
+        document.getElementById('metric-records').textContent = extracted.length;
+        document.getElementById('metric-size').textContent = `${(jsonString.length / 1024).toFixed(2)} KB`;
+
+        setProgress(95, 'SAVING');
+        if (document.getElementById('autosave-toggle')?.checked && localDirHandle) {
+            setStatusPill('SAVING');
+            await autoSaveToLocalDirectory(jsonString);
+        }
+
+        setProgress(100, 'FINISHED');
+        logTerminal(`=== PIPELINE COMPLETE (${extracted.length} records) ===`, 'SUCCESS');
+        document.getElementById('footer-last-run').textContent = `LAST_RUN: ${new Date().toLocaleTimeString()}`;
+        setStatusPill('IDLE');
+        setTimeout(() => setProgress(0, 'IDLE'), 1500);
+    }
+
+    // ============================== FILESYSTEM ==============================
+    async function requestDirectoryAccess() {
+        if (!('showDirectoryPicker' in window)) { alert('File System Access API not supported'); return; }
+        try {
+            localDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+            document.getElementById('dir-btn-label').textContent = `Folder: ${localDirHandle.name}`;
+            document.getElementById('dir-status').innerHTML = `STATUS: <span class="text-green-400 font-bold">LINKED (${localDirHandle.name})</span>`;
+            document.getElementById('footer-dir-name').textContent = localDirHandle.name.toUpperCase();
+            logTerminal(`Linked: ${localDirHandle.name}`, 'SUCCESS');
+        } catch (e) {
+            if (e.name !== 'AbortError') logTerminal(`Dir error: ${e.message}`, 'ERROR');
+        }
+    }
+
+    async function autoSaveToLocalDirectory(content) {
+        if (!localDirHandle) return;
+        try {
+            const ts = new Date().toISOString().replace(/[:.]/g, '-');
+            const fn = `audit_${ts}.json`;
+            const fh = await localDirHandle.getFileHandle(fn, { create: true });
+            const w = await fh.createWritable();
+            await w.write(content); await w.close();
+            logTerminal(`Saved: ${fn}`, 'SUCCESS');
+        } catch (e) { logTerminal(`Save failed: ${e.message}`, 'ERROR'); }
+    }
+
+    // ============================== CRON ==============================
+    function updateCustomCron() {
+        const enabled = document.getElementById('cron-enabled')?.checked;
+        const hour = document.getElementById('cron-hour')?.value;
+        const minute = document.getElementById('cron-minute')?.value;
+        if (cronCheckIntervalId) clearInterval(cronCheckIntervalId);
+        if (!enabled || !selectedCronDays.length) {
+            document.getElementById('next-run-countdown').textContent = 'STANDBY';
+            logTerminal('Cron disabled', 'INFO');
+            return;
+        }
+        logTerminal(`Cron: [${selectedCronDays.join(',')}] @ ${hour}:${minute}`, 'INFO');
+        document.getElementById('next-run-countdown').textContent = `ACTIVE (${hour}:${minute})`;
+        let lastFiredKey = '';
+        cronCheckIntervalId = setInterval(() => {
+            const now = new Date();
+            const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            const key = `${now.toDateString()}_${hour}:${minute}`;
+            if (selectedCronDays.includes(days[now.getDay()]) &&
+                String(now.getHours()).padStart(2,'0') === hour &&
+                String(now.getMinutes()).padStart(2,'0') === minute &&
+                key !== lastFiredKey) {
+                lastFiredKey = key;
+                logTerminal('Cron fired!', 'SUCCESS');
+                runPipeline('SCHEDULED_CRON');
+            }
+        }, 20000);
+    }
+
+    // ============================== DOWNLOADS ==============================
+    function downloadAuditReportTXT() {
+        const ts = new Date().toISOString();
+        let r = `==================== IRON_SCRAPER v5.0 AUDIT ====================\nGENERATED: ${ts}\n\n--- SPEC ---\n${document.getElementById('yaml-input')?.value || ''}\n\n--- LOGS ---\n${auditLogs.join('\n')}\n\n--- PAYLOAD ---\n${lastExtractedData ? JSON.stringify(lastExtractedData, null, 2) : 'No data'}`;
+        const blob = new Blob([r], { type: 'text/plain;charset=utf-8' });
+        triggerDownload(blob, `audit_${Date.now()}.txt`);
+    }
+
+    function downloadJsonPayload() {
+        if (!lastExtractedData) { alert('No payload'); return; }
+        const blob = new Blob([JSON.stringify(lastExtractedData, null, 2)], { type: 'application/json' });
+        triggerDownload(blob, `payload_${Date.now()}.json`);
+    }
+
+    function triggerDownload(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
     </script>
 </body>
 </html>
