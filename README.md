@@ -1,24 +1,24 @@
 <div align="center">
 
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20,30,45&height=180&section=header&text=YAML%20Scraper%20&%20LLM%20Auditor&fontSize=32&fontColor=ffffff&fontAlignY=38&desc=Client-Side%20Pipeline%20Automation%20&%20Local-First%20File%20Sync&descSize=14&descAlignY=62" width="100%" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20,30,45&height=180&section=header&text=YAML%20Scraper%20&%20AI%20Pipeline&fontSize=32&fontColor=ffffff&fontAlignY=38&desc=Client-Side%20Regex%20&%20Custom%20LLM%20Auditing%20Engine&descSize=14&descAlignY=62" width="100%" />
 
   <p>
-    <em>A high-density, client-side YAML pipeline engine for automated web extraction, local directory synchronization, and structured auditing.</em>
+    <em>An industrial, high-density client-side YAML pipeline engine featuring local Regex parsing, custom AI endpoint integration, local directory syncing, and advanced cron scheduling.</em>
   </p>
 
   <p>
-    <img src="https://img.shields.io/badge/Status-Active%20Development-00ff66?style=for-the-badge&logo=codeforces&logoColor=00ff66" alt="Status" />
+    <img src="https://img.shields.io/badge/Status-Active%20Deployment-10b981?style=for-the-badge&logo=codeforces&logoColor=10b981" alt="Status" />
     <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License" />
     <img src="https://img.shields.io/badge/Platform-GitHub%20Pages-orange?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Pages" />
-    <img src="https://img.shields.io/badge/Storage-File%20System%20API-purple?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Local First" />
+    <img src="https://img.shields.io/badge/Engine-Regex%20%2B%20Custom%20LLM-cyan?style=for-the-badge&logo=openai&logoColor=white" alt="Engine" />
   </p>
 
   <p>
     <a href="#-features"><strong>Features</strong></a> ·
-    <a href="#-live-demo"><strong>Live Demo</strong></a> ·
     <a href="#-quick-start"><strong>Quick Start</strong></a> ·
-    <a href="#-yaml-schema"><strong>YAML Schema</strong></a> ·
-    <a href="#-architecture"><strong>Architecture</strong></a>
+    <a href="#-ai-integration-tutorial"><strong>AI Setup Tutorial</strong></a> ·
+    <a href="#-user-manual"><strong>User Manual</strong></a> ·
+    <a href="#-yaml-schema"><strong>YAML Schema</strong></a>
   </p>
 
 </div>
@@ -27,34 +27,86 @@
 
 ## ⚡ Overview
 
-**YAML Scraper & LLM Auditor** is a zero-backend, client-side developer utility engineered for executing data extraction and transformation pipelines directly inside the browser. It combines a rigorous code-auditor aesthetic with modern web APIs (`File System Access API`, `Web Workers`, and background cron schedulers) to run robust automation tasks without exposing server endpoints or requiring complex backend infrastructure.
+**YAML Scraper & AI Pipeline** is a zero-backend, browser-native developer tool built with an industrial **Iron & Raw Steel** aesthetic. It allows you to run robust scraping pipelines using either **Local Regex DOM Parsing** (fast, private, offline) or a **Custom AI API Endpoint** (OpenAI, Gemini, or self-hosted LLMs) for semantic data structuring. 
+
+Combined with native browser folder syncing via the **File System Access API** and a granular cron scheduler, it can run autonomously in the background while you work.
 
 ---
 
 ## 🚀 Key Features
 
-* **YAML Pipeline Definition:** Configure target URLs, CSS selectors, extraction attributes, and LLM normalization rules using a lightweight YAML specification.
-* **Local-First Directory Sync:** Leverages the browser's native **File System Access API** to automatically commit and write scraped datasets directly to a designated local folder on your hard drive.
-* **Background Cron Scheduler:** Keep the dashboard open in the background to trigger automated audit cycles hourly, daily at 21:00 UTC, weekly, or on custom intervals.
-* **Live Audit Terminal & Progress Tracker:** Real-time visual progress bar tracking execution phases (*DOM Fetch, Extraction, Normalization, File I/O*) paired with an animated developer log window.
-* **Audit Report Generator:** Instantly compile execution logs, YAML configs, and extracted payloads into downloadable `.txt` audit reports.
-
----
-
-## 🖥️ Live Demo
-
-You can try the fully functional web application instantly via GitHub Pages:
-
-👉 **[Launch YAML Scraper & LLM Auditor Live](https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPOSITORY_NAME/)**  
-*(Replace `YOUR_GITHUB_USERNAME` and `YOUR_REPOSITORY_NAME` with your actual GitHub details)*
+* **Dual-Engine Architecture:** Choose between ultra-fast **Local Regex** (default, no API key needed) or connect any **Custom AI Endpoint** for intelligent data extraction.
+* **Granular Cron Scheduler:** Set automated execution triggers specifying exact days of the week, hours, and minutes.
+* **Local Directory Sync:** Leverages the native **File System Access API** to automatically commit scraped JSON payloads directly to a chosen folder on your local disk.
+* **Industrial Dev UI:** High-density dark theme (`#07090c`), tactical borders, matrix green accents, and a real-time audit terminal.
+* **Audit Report Generator:** Instantly compile logs, YAML configurations, and extracted datasets into downloadable `.txt` or `.json` reports.
 
 ---
 
 ## 🛠️ Quick Start
 
-Because this tool runs entirely client-side inside a single robust architecture, you don't need `npm install`, complex build scripts, or Docker containers to run it.
+1. Clone or download this repository.
+2. Ensure `index.html` is in the root directory.
+3. Push to your repository and enable **GitHub Pages** under repository `Settings > Pages` (Source: `main` branch, `/root`).
+4. Open your public GitHub Pages URL in any modern browser (Chrome, Edge, Opera).
 
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME.git](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME.git)
-   cd YOUR_REPOSITORY_NAME
+---
+
+## 🤖 AI Integration Tutorial
+
+By default, the engine runs entirely offline using **Local Regex & DOM selectors**. If you want to enable advanced semantic AI extraction using your own LLM provider (OpenAI, Google Gemini, Anthropic, or Local LLM via Ollama/LM Studio), follow these steps:
+
+1. **Open the Application:** Navigate to your hosted GitHub Pages link.
+2. **Access the Configuration Panel:** Look at the left sidebar and click on the **AI / LLM Endpoint** tab.
+3. **Configure Your Provider:**
+   * **Engine Selector:** Switch from *Local Regex (Offline)* to **Custom AI Endpoint (LLM)**.
+   * **API Base URL:** Enter your provider's endpoint URL.
+     * *OpenAI Example:* `https://api.openai.com/v1/chat/completions`
+     * *Gemini API Example:* `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=YOUR_KEY`
+     * *Local Ollama Example:* `http://localhost:11434/v1/chat/completions`
+   * **Model Identifier:** Type the model name (e.g., `gpt-4o-mini`, `gemini-1.5-flash`, `llama3`).
+   * **Secret API Key:** Paste your private API key. *(Note: Keys remain 100% client-side in your browser memory and are never stored externally).*
+4. **Test & Run:** Modify your YAML pipeline to include a transformation prompt, then click **EXECUTE NOW** to watch the AI normalize and structure the scraped data.
+
+---
+
+## 📖 User Manual & Operational Guide
+
+### 1. YAML Pipeline Spec Editor
+Located on the left panel under the **YAML Pipeline** tab. Here you define your scraping rules using clean YAML syntax:
+* `target_url`: The website URL to scrape.
+* `extraction_rules`: Define container classes, CSS selectors, and target attributes.
+* `llm_transformation`: Optional instructions for the AI parser to categorize, clean, or format the extracted records.
+
+### 2. Scheduler & Local Storage Setup
+Switch to the **Scheduler & Storage** tab to configure automation:
+* **Local Folder Auto-Save:** Click **Set Destination Directory** and grant browser permission to a local folder. Every time the pipeline runs, a timestamped `.json` file will be written directly to your computer.
+* **Granular Cron Scheduler:** 
+  * Check the specific days of the week you want the task to run (e.g., Monday, Wednesday, Friday).
+  * Set the exact hour (00-23) and minute (00-59).
+  * Keep the browser tab open in the background; the live countdown timer will trigger executions automatically.
+
+### 3. Execution & Monitoring
+* **Live Audit Terminal:** Displays real-time status updates, HTTP fetch diagnostics, parsing events, and success/error codes with timestamped logs.
+* **Progress Bar:** Tracks the execution lifecycle: `PARSING_YAML_SPEC` ➔ `HTTP_FETCH_DOM` ➔ `EXTRACTING_NODES` ➔ `AI_NORMALIZATION` ➔ `WRITING_LOCAL_FILE`.
+* **Exporting Reports:** Use the **Download Full TXT Report** button to generate a complete audit trail containing the exact YAML configuration, terminal logs, and structured JSON results.
+
+---
+
+## 📄 Example YAML Pipeline Schema
+
+```yaml
+version: "2.0.0"
+pipeline_meta:
+  name: "Industrial Tech Feed Auditor"
+  engine: "regex" # or "llm"
+targets:
+  - url: "[https://news.ycombinator.com](https://news.ycombinator.com)"
+    selectors:
+      - item: "tr.athing"
+        fields:
+          title: "span.titleline > a"
+          link: "span.titleline > a [href]"
+output:
+  format: "json"
+  auto_save_local: true
